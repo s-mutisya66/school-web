@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Money is stored as whole Kenyan shillings (Int). M-Pesa STK Push uses whole
+// shillings too, and integers avoid floating-point rounding bugs.
+
+enum InvoiceStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum PaymentMethod {
+  MPESA
+  CASH
+  BANK
+}
+
+// Minimal stand-ins; replace with the full student/class models later.
+model SchoolClass {
+  id       Int            @id @default(autoincrement())
+  name     String
+  stream   String?
+  students Student[]
+  feeItems FeeStructure[]
+}
+
+model Student {
+  id            Int       @id @default(autoincrement())
+  admissionNo   String    @unique
+  firstName     String
+  lastName      String
+  schoolClassId Int
+  schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
+  status        String    @default("active")
+  invoices      Invoice[]
+  payments      Payment[]
+  guardians     User[]    @relation("Guardians")
+}
+
+model Term {
+  id           Int            @id @default(autoincrement())
+  academicYear String         // calendar year, e.g. "2026"
+  termNumber   Int            // 1..3
+  startsOn     DateTime       @db.Date
+  endsOn       DateTime       @db.Date
+  feesDueOn    DateTime       @db.Date
+  isCurrent    Boolean        @default(false)
+  feeItems     FeeStructure[]
+  invoices     Invoice[]
+
+  @@unique([academicYear, termNumber])
+}
+
+// What a class is charged per term, itemised (Tuition, Boarding, Transport...)
+model FeeStructure {
+  id            Int         @id @default(autoincrement())
+  schoolClassId Int
+  termId        Int
+  item          String
+  amount        Int
+  schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
+  term          Term        @relation(fields: [termId], references: [id])
+}
+
+// One invoice per student per term
+model Invoice {
+  id         Int           @id @default(autoincrement())
+  studentId  Int
+  termId     Int
+  amountDue  Int
+  amountPaid Int           @default(0)
+  status     InvoiceStatus @default(UNPAID)
+  dueDate    DateTime      @db.Date
+  student    Student       @relation(fields: [studentId], references: [id])
+  term       Term          @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, termId])
+}
+
+model Payment {
+  id                Int           @id @default(autoincrement())
+  studentId         Int
+  amount            Int
+  method            PaymentMethod @default(MPESA)
+  phone             String?       // 2547XXXXXXXX
+  merchantRequestId String?
+  checkoutRequestId String?       @unique
+  mpesaReceipt      String?       @unique
+  status            PaymentStatus @default(PENDING)
+  failureReason     String?
+  paidAt            DateTime?
+  createdAt         DateTime      @default(now())
+  student           Student       @relation(fields: [studentId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  PARENT
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         Role
+  children     Student[] @relation("Guardians") // only used for PARENT users
+}
