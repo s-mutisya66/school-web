@@ -51,6 +51,7 @@ model Student {
   payments      Payment[]
   guardians     User[]    @relation("Guardians")
   attendance    Attendance[]
+  phone         String?
 }
 
 model Term {
