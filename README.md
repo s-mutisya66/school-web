@@ -1,45 +1,56 @@
-# School fees module (Next.js + Prisma + PostgreSQL)
+# School management system
 
-Copy `prisma/` and `src/` into a Next.js (App Router, TypeScript, `@/` alias) project.
+A school fee and attendance system built around how Kenyan schools work: termly fees and M-Pesa payments, with separate logins for admins, teachers and parents. It's a portfolio project, so all data is fictional and **M-Pesa is simulated**.
+
+**Live demo:** _schoolweb-snerd.vercel.app_ · Demo logins are on the home page.
+
+## Features
+
+- **Term fees:** itemised fee structures per class and term, one invoice per student per term, and payments applied to the oldest unpaid term first.
+- **Simulated M-Pesa (STK Push):** request and callback payloads follow Safaricom's Daraja format, so only one file (`src/lib/mpesa.ts`) changes for a real integration.
+- **Roles:** admin, teacher and parent. Access is enforced in every API route, and a parent can only see their own children.
+- **Attendance:** daily class registers (present, late, absent, excused) and a parent view with an attendance rate.
+- **Admin tools:** manage classes, students, parent links and user accounts, and generate a term's invoices.
+
+## Design decisions
+
+- **Money is stored as whole shillings (integers),** matching M-Pesa and avoiding floating-point rounding.
+- **Callbacks are idempotent.** The pending-to-paid change is one conditional update, so a replayed callback can't credit a payment twice.
+- **Students are deactivated, never deleted,** so invoice and payment history is kept.
+- **Sessions** are signed `httpOnly` cookies (`jose`); passwords are hashed with bcrypt.
+
+## Tech
+
+Next.js (App Router, TypeScript, Tailwind) · Prisma 6 · PostgreSQL on Neon · Vercel
+
+## Screenshots
+
+| Parent fee statement | Teacher attendance | Admin students |
+|---|---|---|
+| ![Fee statement](docs/screenshots/fees.png) | ![Attendance](docs/screenshots/attendance.png) | ![Students](docs/screenshots/students.png) |
+
+## Run it locally
 
 ```bash
-npm i prisma@6 @prisma/client@6
-# .env: DATABASE_URL="postgresql://..."   (Neon or Supabase free tier works)
-npx prisma migrate dev --name fees
-npx prisma studio   # add a class, student, term and fee items to test
-```
-
-Test flow:
-1. `POST /api/terms/1/invoices/generate`
-2. `POST /api/students/1/payments/mpesa` with `{ "phone": "0712345678", "amount": 5000 }`
-3. `POST /api/payments/1/simulate` with `{ "success": true }` (or `false` to cancel)
-4. `GET /api/students/1/invoices`
-
-## Auth and roles
-
-```bash
-npm i jose bcryptjs
-npm i -D tsx
-# .env: AUTH_SECRET="<output of: openssl rand -base64 32>"
-# package.json: "prisma": { "seed": "tsx prisma/seed.ts" }
-npx prisma migrate dev --name auth
+npm install
+cp .env.example .env     # fill in DATABASE_URL, DIRECT_URL, AUTH_SECRET
+npx prisma migrate dev
 npx prisma db seed
+npm run dev
 ```
 
-Demo logins (from the seed): `admin@school.test` / `admin123`, `parent@school.test` / `parent123`.
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | Pooled Postgres connection (used by the app) |
+| `DIRECT_URL` | Direct Postgres connection (used by migrations) |
+| `AUTH_SECRET` | Random string that signs session cookies |
+| `NEXT_PUBLIC_DEMO_MODE` | `true` keeps the fake M-Pesa PIN buttons on a deployed demo. Never enable it with real Daraja. |
 
-- ADMIN: generates invoices, views any student's fees.
-- PARENT: sees only their own children (linked through `User.children`).
-- TEACHER: no fee access.
-- `/api/mpesa/callback` stays public by design (Safaricom calls it); in a real Daraja setup you'd also restrict it to Safaricom's IPs.
-- Pages redirect to `/login` on a 401; the real enforcement is in the API routes.
+Migrations run automatically on each Vercel deploy (`prisma migrate deploy`).
 
-## Students, classes and users
+## Known limits and next steps
 
-Admin pages (sign in as admin): `/admin/students`, `/admin/users`, `/admin/fees`.
-
-1. Users: create parent and teacher accounts (admin accounts come from the seed only).
-2. Students: add a class, add students, and link a parent by email (or use "Parents" on a row).
-3. Fees: generate invoices for a term.
-
-Students are deactivated instead of deleted, so invoices and payment history are never lost.
+- Login has no rate limiting yet.
+- Teachers aren't assigned to classes, so any teacher can mark any class.
+- Exams, grades and report cards are planned next.
+- Overpayments (credit balances) aren't handled.
