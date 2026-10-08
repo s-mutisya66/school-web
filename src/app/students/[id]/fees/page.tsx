@@ -88,7 +88,10 @@ export default function FeeStatement() {
   return (
     <main className={`${body.className} min-h-screen bg-stone-50 text-slate-900`}>
       <div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
-        <p className="text-sm text-slate-500">Fee statement · Student {id}</p>
+        <div className="flex items-baseline justify-between text-sm text-slate-500">
+          <p>Fee statement · Student {id}</p>
+          <a href={`/students/${id}/attendance`} className="underline">Attendance</a>
+        </div>
         <h1 className={`${display.className} mt-1 text-5xl font-bold tracking-tight sm:text-6xl`}>
           {data.balance > 0 ? kes(data.balance) : "Fees cleared"}
         </h1>

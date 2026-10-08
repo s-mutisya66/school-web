@@ -36,6 +36,7 @@ model SchoolClass {
   stream   String?
   students Student[]
   feeItems FeeStructure[]
+  attendance Attendance[]
 }
 
 model Student {
@@ -49,6 +50,7 @@ model Student {
   invoices      Invoice[]
   payments      Payment[]
   guardians     User[]    @relation("Guardians")
+  attendance    Attendance[]
 }
 
 model Term {
@@ -120,4 +122,28 @@ model User {
   passwordHash String
   role         Role
   children     Student[] @relation("Guardians") // only used for PARENT users
+  attendanceMarked Attendance[] @relation("AttendanceMarker")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+// One row per student per school day.
+model Attendance {
+  id            Int              @id @default(autoincrement())
+  studentId     Int
+  schoolClassId Int              // class the student was in on that day
+  date          DateTime         @db.Date
+  status        AttendanceStatus
+  markedById    Int
+  student       Student          @relation(fields: [studentId], references: [id])
+  schoolClass   SchoolClass      @relation(fields: [schoolClassId], references: [id])
+  markedBy      User             @relation("AttendanceMarker", fields: [markedById], references: [id])
+
+  @@unique([studentId, date])
+  @@index([schoolClassId, date])
 }

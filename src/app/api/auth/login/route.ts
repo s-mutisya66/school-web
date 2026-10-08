@@ -23,8 +23,9 @@ export async function POST(req: Request) {
 
   const redirect =
     user.role === "ADMIN" ? "/admin/fees"
+    : user.role === "TEACHER" ? "/admin/attendance"
     : user.role === "PARENT" && user.children[0] ? `/students/${user.children[0].id}/fees`
-    : "/";
+    : "/login";
 
   return NextResponse.json({ redirect });
 }
