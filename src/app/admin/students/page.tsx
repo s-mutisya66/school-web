@@ -144,6 +144,7 @@ export default function Students() {
                 <td className="pr-4">{s.guardians.length ? s.guardians.map((g) => g.name).join(", ") : "None linked"}</td>
                 <td className="space-x-3 whitespace-nowrap text-sm">
                   <Link href={`/students/${s.id}/fees`} className="underline">Fees</Link>
+                  <Link href={`/students/${s.id}/report`} className="underline">Report</Link>
                   <button onClick={() => editParents(s)} className="underline">Parents</button>
                   <button onClick={() => toggle(s)} className="underline">{s.status === "active" ? "Deactivate" : "Reactivate"}</button>
                 </td>

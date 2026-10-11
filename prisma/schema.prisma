@@ -51,7 +51,7 @@ model Student {
   payments      Payment[]
   guardians     User[]    @relation("Guardians")
   attendance    Attendance[]
-  phone         String?
+  marks         Mark[]
 }
 
 model Term {
@@ -64,6 +64,7 @@ model Term {
   isCurrent    Boolean        @default(false)
   feeItems     FeeStructure[]
   invoices     Invoice[]
+  exams        Exam[]
 
   @@unique([academicYear, termNumber])
 }
@@ -147,4 +148,36 @@ model Attendance {
 
   @@unique([studentId, date])
   @@index([schoolClassId, date])
+}
+
+model Subject {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  marks Mark[]
+}
+
+// An assessment in a term, e.g. "Opening exam", "Mid-term", "End-term".
+model Exam {
+  id     Int    @id @default(autoincrement())
+  termId Int
+  name   String
+  outOf  Int    @default(100)
+  term   Term   @relation(fields: [termId], references: [id])
+  marks  Mark[]
+
+  @@unique([termId, name])
+}
+
+model Mark {
+  id        Int     @id @default(autoincrement())
+  examId    Int
+  subjectId Int
+  studentId Int
+  score     Int
+  exam      Exam    @relation(fields: [examId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id])
+
+  @@unique([examId, subjectId, studentId])
+  @@index([studentId])
 }
