@@ -6,10 +6,9 @@ import { DemoLogin } from "@/components/demo-login";
 const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "700", "800"] });
 const body = Figtree({ subsets: ["latin"] });
 
-// Edit these three.
 const NAME = "School Management System";
-const AUTHOR = "Sidney";
-const CONTACT_HREF = ""; // e.g. your Fiverr profile URL. The link only shows when this is set.
+const AUTHOR = "Sidney Mutisya";
+const CONTACT_HREF = "https://github.com/s-mutisya66";
 
 export const metadata: Metadata = {
   title: `${NAME} (live demo)`,

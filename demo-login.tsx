@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 type Props = { email: string; password: string; label: string; tone: "solid" | "outline" };
 
-/** One-click sign-in for the public demo accounts. */
 export function DemoLogin({ email, password, label, tone }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);

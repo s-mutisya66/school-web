@@ -47,6 +47,8 @@ model Student {
   schoolClassId Int
   schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
   status        String    @default("active")
+  gender        Gender?
+  dateOfBirth   DateTime? @db.Date
   invoices      Invoice[]
   payments      Payment[]
   guardians     User[]    @relation("Guardians")
@@ -180,4 +182,9 @@ model Mark {
 
   @@unique([examId, subjectId, studentId])
   @@index([studentId])
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }

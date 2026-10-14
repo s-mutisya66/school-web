@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { StudentsCsv } from "@/components/students-csv";
 
 type Cls = { id: number; name: string; stream: string | null; _count: { students: number } };
 type Parent = { id: number; name: string; email: string };
@@ -76,6 +77,8 @@ export default function Students() {
     <main className="mx-auto max-w-5xl px-5 py-10">
       <h1 className="text-3xl font-bold">Students</h1>
       {msg && <p role="alert" className="mt-4 rounded-md bg-rose-100 px-4 py-3 text-rose-900">{msg}</p>}
+
+      <StudentsCsv onDone={load} />
 
       <section className="mt-6 grid gap-6 md:grid-cols-2">
         <form onSubmit={addClass} className="rounded-lg border border-slate-200 bg-white p-4">
