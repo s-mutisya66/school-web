@@ -167,6 +167,7 @@ model Exam {
   outOf  Int    @default(100)
   term   Term   @relation(fields: [termId], references: [id])
   marks  Mark[]
+  position Int    @default(0)
 
   @@unique([termId, name])
 }
