@@ -9,7 +9,7 @@ const body = Figtree({ subsets: ["latin"] });
 // Edit these three.
 const NAME = "School Management System";
 const AUTHOR = "Sidney";
-const CONTACT_HREF = ""; // e.g. your Fiverr profile URL. The link only shows when this is set.
+const CONTACT_HREF = ""; 
 
 export const metadata: Metadata = {
   title: `${NAME} (live demo)`,
@@ -140,7 +140,7 @@ export default function Home() {
 
       <footer className="border-t border-slate-300">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 text-sm text-slate-600">
-          <p>A portfolio project by {AUTHOR}. Every name and amount is fictional.</p>
+          <p>A portfolio project by {AUTHOR}. Consider every name and amount as dummy data.</p>
           {CONTACT_HREF && <a href={CONTACT_HREF} className="font-medium underline underline-offset-4">Work with me</a>}
         </div>
       </footer>
