@@ -25,7 +25,16 @@ export async function POST(req: Request) {
 
   const classes = await db.schoolClass.findMany({ select: { id: true, name: true, stream: true } });
   const { rows, errors } = readStudentRows(table, classes);
-  if (errors.length) return NextResponse.json({ ok: false, errors: errors.slice(0, 50), totalErrors: errors.length });
+  if (errors.length) {
+    const grouped = new Map<string, number[]>();
+    for (const e of errors) grouped.set(e.message, [...(grouped.get(e.message) ?? []), e.row]);
+    return NextResponse.json({
+      ok: false,
+      totalErrors: errors.length,
+      groups: [...grouped].slice(0, 30).map(([message, rows]) => ({ message, rows })),
+      known: [...new Set(classes.map(classLabel))].sort(),
+    });
+  }
 
   const existing = await db.student.findMany({
     where: { admissionNo: { in: rows.map((r) => r.admissionNo) } },

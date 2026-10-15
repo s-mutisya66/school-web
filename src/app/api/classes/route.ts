@@ -21,8 +21,13 @@ export async function POST(req: Request) {
   const { name, stream } = await req.json().catch(() => ({}));
   if (typeof name !== "string" || !name.trim()) return bad("Enter a class name, for example Form 2.");
 
-  const created = await db.schoolClass.create({
-    data: { name: name.trim(), stream: typeof stream === "string" && stream.trim() ? stream.trim() : null },
+  const cleanStream = typeof stream === "string" && stream.trim() ? stream.trim() : null;
+  const exists = await db.schoolClass.findFirst({
+    where: { name: { equals: name.trim(), mode: "insensitive" }, stream: cleanStream ? { equals: cleanStream, mode: "insensitive" } : null },
+    select: { id: true },
   });
+  if (exists) return bad("That class already exists.", 409);
+
+  const created = await db.schoolClass.create({ data: { name: name.trim(), stream: cleanStream } });
   return NextResponse.json(created, { status: 201 });
 }

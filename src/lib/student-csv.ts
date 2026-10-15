@@ -49,6 +49,9 @@ export function matchClass(raw: string, classes: ClassOpt[]): { id?: number; err
 
   const full = classes.filter((c) => norm(classLabel(c)) === want);
   if (full.length === 1) return { id: full[0].id };
+  if (full.length > 1) {
+    return { error: `There are ${full.length} classes named "${classLabel(full[0])}". Delete the extra one under Classes on this page, then upload again.` };
+  }
 
   for (const pick of [(c: ClassOpt) => c.name, (c: ClassOpt) => c.stream ?? ""]) {
     const hits = classes.filter((c) => norm(pick(c)) === want);
@@ -56,8 +59,7 @@ export function matchClass(raw: string, classes: ClassOpt[]): { id?: number; err
     if (hits.length > 1) return { error: `"${raw.trim()}" matches more than one class. Write it in full, like "${classLabel(hits[0])}".` };
   }
 
-  const known = classes.map(classLabel).join(", ") || "none yet";
-  return { error: `Stream "${raw.trim()}" doesn't match a class. Known classes: ${known}.` };
+  return { error: `Stream "${raw.trim()}" doesn't match a class.` };
 }
 
 export function readStudentRows(table: string[][], classes: ClassOpt[]): { rows: ParsedRow[]; errors: RowError[] } {

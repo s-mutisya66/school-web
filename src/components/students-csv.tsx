@@ -5,8 +5,20 @@ import { useRouter } from "next/navigation";
 
 type Preview = { admissionNo: string; name: string; gender: string; dob: string; class: string; action: string };
 type Result =
-  | { ok: false; errors: { row: number; message: string }[]; totalErrors: number }
+  | { ok: false; groups: { message: string; rows: number[] }[]; totalErrors: number; known: string[] }
   | { ok: true; created: number; updated: number; preview: Preview[] };
+
+/** [34,35,36,40] becomes "Rows 34–36, 40". */
+function fmtRows(rows: number[]) {
+  const parts: string[] = [];
+  for (let i = 0; i < rows.length; ) {
+    let j = i;
+    while (j + 1 < rows.length && rows[j + 1] === rows[j] + 1) j++;
+    parts.push(j > i ? `${rows[i]}–${rows[j]}` : `${rows[i]}`);
+    i = j + 1;
+  }
+  return `${rows.length === 1 ? "Row" : "Rows"} ${parts.join(", ")}`;
+}
 
 export function StudentsCsv({ onDone }: { onDone: () => void }) {
   const router = useRouter();
@@ -82,9 +94,9 @@ export function StudentsCsv({ onDone }: { onDone: () => void }) {
         <div role="alert" className="mt-3 rounded-md bg-rose-100 p-3 text-sm text-rose-900">
           <p className="font-medium">Nothing was imported. Fix these rows in your file and upload it again ({result.totalErrors} problem{result.totalErrors === 1 ? "" : "s"}):</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            {result.errors.map((e, i) => <li key={i}>Row {e.row}: {e.message}</li>)}
+            {result.groups.map((g, i) => <li key={i}>{fmtRows(g.rows)}: {g.message}</li>)}
           </ul>
-          {result.totalErrors > result.errors.length && <p className="mt-2">…and {result.totalErrors - result.errors.length} more.</p>}
+          {result.known.length > 0 && <p className="mt-3">Your classes are: {result.known.join(", ")}.</p>}
         </div>
       )}
 

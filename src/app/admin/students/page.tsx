@@ -61,6 +61,11 @@ export default function Students() {
     if (ok) { setForm({ ...form, admissionNo: "", firstName: "", lastName: "", parentEmail: "" }); load(); }
   }
 
+  async function removeClass(c: Cls) {
+    if (!window.confirm(`Delete the class ${label(c)}? This can't be undone.`)) return;
+    if (await call(`/api/classes/${c.id}`, "DELETE")) load();
+  }
+
   async function toggle(s: Student) {
     if (await call(`/api/students/${s.id}`, "PATCH", { status: s.status === "active" ? "inactive" : "active" })) load();
   }
@@ -119,6 +124,19 @@ export default function Students() {
           <button className="mt-3 rounded-md bg-slate-900 px-4 py-2 font-semibold text-white">Add student</button>
         </form>
       </section>
+
+      <details className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
+        <summary className="cursor-pointer font-medium">Classes ({classes.length})</summary>
+        <ul className="mt-3 grid gap-x-6 gap-y-1 sm:grid-cols-2">
+          {classes.map((c) => (
+            <li key={c.id} className="flex items-center justify-between border-b border-slate-100 py-1.5 text-sm">
+              <span>{label(c)} <span className="text-slate-500">({c._count.students} students)</span></span>
+              <button onClick={() => removeClass(c)} className="text-rose-700 underline">Delete</button>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-sm text-slate-600">A class can only be deleted when it has no students and no fee items.</p>
+      </details>
 
       <div className="mt-8 flex flex-wrap items-end gap-3">
         <label className="text-sm font-medium">Class
