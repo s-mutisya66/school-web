@@ -31,11 +31,6 @@ export default function ReportCard() {
   if (error) return <main className="p-8 text-slate-700">{error}</main>;
   if (!report) return <main className="p-8 text-slate-600">Loading report card…</main>;
 
-  const exams = await prisma.exam.findMany({
-  where: { termId },
-  orderBy: { position: 'asc' },
-});
-
   const s = report.summary;
   return (
     <main className="min-h-screen bg-stone-50 text-slate-900 print:bg-white">
