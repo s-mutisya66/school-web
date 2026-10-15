@@ -29,7 +29,7 @@ async function main() {
 
   await db.user.create({
     data: {
-      email: "parent@school.test", name: "Demo Parent", role: "PARENT",
+      email: "parent@school.test", name: "Churchills Otieno", role: "PARENT",
       passwordHash: await bcrypt.hash("parent123", 10),
       children: { create: [{ admissionNo: "ADM-001", firstName: "Amani", lastName: "Otieno", schoolClassId: cls.id }] },
     },
