@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Preview = { admissionNo: string; name: string; gender: string; dob: string; class: string; action: string };
+type Preview = { admissionNo: string; name: string; gender: string; dob: string; class: string; parent: string; action: string };
 type Result =
   | { ok: false; groups: { message: string; rows: number[] }[]; totalErrors: number; known: string[] }
   | { ok: true; created: number; updated: number; preview: Preview[] };
@@ -72,9 +72,9 @@ export function StudentsCsv({ onDone }: { onDone: () => void }) {
     <section className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
       <h2 className="font-semibold">Import or export students (CSV)</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Columns: id, Admission No., FName, Lname, Gender, D.O.B, Stream. Students are matched by admission number, so the id column
+        Columns: id, Admission No., FName, Lname, Gender, D.O.B, Stream, and an optional Parent Name. Students are matched by admission number, so the id column
         is ignored. Stream must match a class, such as Form 2 North. Dates are read day first (14/03/2010) or as 2010-03-14.
-        On an update, a blank Gender or D.O.B leaves the saved value alone.
+        On an update, a blank Gender, D.O.B or Parent Name leaves the saved value alone.
       </p>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -106,13 +106,13 @@ export function StudentsCsv({ onDone }: { onDone: () => void }) {
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-slate-300 text-slate-600">
-                <tr><th className="py-1 pr-3"></th><th className="pr-3">Adm. no.</th><th className="pr-3">Name</th><th className="pr-3">Gender</th><th className="pr-3">Born</th><th>Class</th></tr>
+                <tr><th className="py-1 pr-3"></th><th className="pr-3">Adm. no.</th><th className="pr-3">Name</th><th className="pr-3">Gender</th><th className="pr-3">Born</th><th className="pr-3">Class</th><th>Parent</th></tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {result.preview.map((p) => (
                   <tr key={p.admissionNo}>
                     <td className="py-1 pr-3 font-medium">{p.action}</td><td className="pr-3">{p.admissionNo}</td><td className="pr-3">{p.name}</td>
-                    <td className="pr-3">{p.gender}</td><td className="pr-3">{p.dob}</td><td>{p.class}</td>
+                    <td className="pr-3">{p.gender}</td><td className="pr-3">{p.dob}</td><td className="pr-3">{p.class}</td><td>{p.parent}</td>
                   </tr>
                 ))}
               </tbody>

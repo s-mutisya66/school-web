@@ -57,6 +57,7 @@ export async function POST(req: Request) {
         gender: r.gender === "MALE" ? "Male" : r.gender === "FEMALE" ? "Female" : "",
         dob: r.dob ? r.dob.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : "",
         class: label.get(r.classId),
+        parent: r.guardianName ?? "",
         action: byAdm.has(r.admissionNo.toLowerCase()) ? "Update" : "New",
       })),
     });
@@ -66,16 +67,17 @@ export async function POST(req: Request) {
     db.student.createMany({
       data: creates.map((r) => ({
         admissionNo: r.admissionNo, firstName: r.firstName, lastName: r.lastName,
-        schoolClassId: r.classId, gender: r.gender, dateOfBirth: r.dob,
+        schoolClassId: r.classId, gender: r.gender, dateOfBirth: r.dob, guardianName: r.guardianName,
       })),
     }),
-    // On updates, a blank gender or date of birth leaves the saved value alone.
+    // On updates, a blank gender, date of birth or parent name leaves the saved value alone.
     ...updates.map((r) =>
       db.student.update({
         where: { id: byAdm.get(r.admissionNo.toLowerCase())! },
         data: {
           firstName: r.firstName, lastName: r.lastName, schoolClassId: r.classId,
           ...(r.gender ? { gender: r.gender } : {}), ...(r.dob ? { dateOfBirth: r.dob } : {}),
+          ...(r.guardianName ? { guardianName: r.guardianName } : {}),
         },
       }),
     ),

@@ -15,6 +15,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (typeof b[k] === "string" && b[k].trim()) data[k] = b[k].trim();
   }
   if (Number(b.schoolClassId)) data.schoolClassId = Number(b.schoolClassId);
+  if (typeof b.guardianName === "string") data.guardianName = b.guardianName.trim().slice(0, 100) || null;
   if (b.status === "active" || b.status === "inactive") data.status = b.status;
 
   const g = await resolveGuardians(b.guardianEmails);

@@ -4,7 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { csvCell } from "@/lib/csv";
 import { classLabel } from "@/lib/student-csv";
 
-const HEADER = ["id", "Admission No.", "FName", "Lname", "Gender", "D.O.B", "Stream"];
+const HEADER = ["id", "Admission No.", "FName", "Lname", "Gender", "D.O.B", "Stream", "Parent Name"];
 
 const dmy = (d: Date | null) =>
   d ? `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}` : "";
@@ -17,12 +17,12 @@ export async function GET(req: Request) {
   const lines = [HEADER.map(csvCell).join(",")];
 
   if (template) {
-    lines.push(["", "ADM-002", "Wanjiru", "Kamau", "Female", "14/03/2010", "Form 2 North"].map(csvCell).join(","));
+    lines.push(["", "ADM-002", "Wanjiru", "Kamau", "Female", "14/03/2010", "Form 2 North", "Grace Kamau"].map(csvCell).join(","));
   } else {
     const students = await db.student.findMany({ include: { schoolClass: true }, orderBy: { id: "asc" } });
     for (const s of students) {
       lines.push(
-        [s.id, s.admissionNo, s.firstName, s.lastName, s.gender === "MALE" ? "Male" : s.gender === "FEMALE" ? "Female" : "", dmy(s.dateOfBirth), classLabel(s.schoolClass)]
+        [s.id, s.admissionNo, s.firstName, s.lastName, s.gender === "MALE" ? "Male" : s.gender === "FEMALE" ? "Female" : "", dmy(s.dateOfBirth), classLabel(s.schoolClass), s.guardianName ?? ""]
           .map(csvCell).join(","),
       );
     }

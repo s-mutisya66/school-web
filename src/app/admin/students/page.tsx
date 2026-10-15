@@ -8,7 +8,7 @@ import { StudentsCsv } from "@/components/students-csv";
 type Cls = { id: number; name: string; stream: string | null; _count: { students: number } };
 type Parent = { id: number; name: string; email: string };
 type Student = {
-  id: number; admissionNo: string; firstName: string; lastName: string; status: string;
+  id: number; admissionNo: string; firstName: string; lastName: string; status: string; guardianName: string | null;
   schoolClass: Cls; guardians: Parent[];
 };
 
@@ -23,7 +23,7 @@ export default function Students() {
   const [q, setQ] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [cls, setCls] = useState({ name: "", stream: "" });
-  const [form, setForm] = useState({ admissionNo: "", firstName: "", lastName: "", schoolClassId: "", parentEmail: "" });
+  const [form, setForm] = useState({ admissionNo: "", firstName: "", lastName: "", schoolClassId: "", parentName: "", parentEmail: "" });
 
   async function call(url: string, method: string, body?: unknown) {
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
@@ -53,12 +53,13 @@ export default function Students() {
 
   async function addStudent(e: React.FormEvent) {
     e.preventDefault();
-    const { parentEmail, ...rest } = form;
+    const { parentEmail, parentName, ...rest } = form;
     const ok = await call("/api/students", "POST", {
       ...rest, schoolClassId: Number(rest.schoolClassId),
+      guardianName: parentName,
       guardianEmails: parentEmail.trim() ? [parentEmail] : [],
     });
-    if (ok) { setForm({ ...form, admissionNo: "", firstName: "", lastName: "", parentEmail: "" }); load(); }
+    if (ok) { setForm({ ...form, admissionNo: "", firstName: "", lastName: "", parentName: "", parentEmail: "" }); load(); }
   }
 
   async function removeClass(c: Cls) {
@@ -71,11 +72,12 @@ export default function Students() {
   }
 
   async function editParents(s: Student) {
-    const current = s.guardians.map((g) => g.email).join(", ");
-    const next = window.prompt("Parent emails, separated by commas", current);
+    const name = window.prompt("Parent's name (leave blank for none)", s.guardianName ?? s.guardians[0]?.name ?? "");
+    if (name === null) return;
+    const next = window.prompt("Emails of parent logins to link, separated by commas (leave blank for none)", s.guardians.map((g) => g.email).join(", "));
     if (next === null) return;
     const emails = next.split(",").map((x) => x.trim()).filter(Boolean);
-    if (await call(`/api/students/${s.id}`, "PATCH", { guardianEmails: emails })) load();
+    if (await call(`/api/students/${s.id}`, "PATCH", { guardianName: name, guardianEmails: emails })) load();
   }
 
   return (
@@ -117,7 +119,10 @@ export default function Students() {
             <label className="text-sm font-medium">Last name
               <input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className={input} />
             </label>
-            <label className="col-span-2 text-sm font-medium">Parent email (optional)
+            <label className="col-span-2 text-sm font-medium">Parent's name (optional)
+              <input value={form.parentName} onChange={(e) => setForm({ ...form, parentName: e.target.value })} className={input} />
+            </label>
+            <label className="col-span-2 text-sm font-medium">Parent email (optional, links an existing parent login)
               <input type="email" value={form.parentEmail} onChange={(e) => setForm({ ...form, parentEmail: e.target.value })} className={input} />
             </label>
           </div>
@@ -162,7 +167,7 @@ export default function Students() {
                 <td className="py-3 pr-4">{s.admissionNo}</td>
                 <td className="pr-4">{s.firstName} {s.lastName}{s.status === "inactive" && " (inactive)"}</td>
                 <td className="pr-4">{label(s.schoolClass)}</td>
-                <td className="pr-4">{s.guardians.length ? s.guardians.map((g) => g.name).join(", ") : "None linked"}</td>
+                <td className="pr-4">{s.guardians.length ? s.guardians.map((g) => g.name).join(", ") : s.guardianName ? `${s.guardianName} (no login)` : "None"}</td>
                 <td className="space-x-3 whitespace-nowrap text-sm">
                   <Link href={`/students/${s.id}/fees`} className="underline">Fees</Link>
                   <Link href={`/students/${s.id}/report`} className="underline">Report</Link>

@@ -47,12 +47,13 @@ export async function POST(req: Request) {
 
   const g = await resolveGuardians(b.guardianEmails);
   if ("error" in g) return bad(g.error!);
+  const guardianName = typeof b.guardianName === "string" && b.guardianName.trim() ? b.guardianName.trim().slice(0, 100) : null;
 
   try {
     const student = await db.student.create({
       data: {
         admissionNo: admissionNo.trim(), firstName: firstName.trim(), lastName: lastName.trim(),
-        schoolClassId: Number(schoolClassId),
+        schoolClassId: Number(schoolClassId), guardianName,
         ...(g.ids ? { guardians: { connect: g.ids } } : {}),
       },
       include,

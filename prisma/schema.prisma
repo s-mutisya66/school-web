@@ -48,6 +48,7 @@ model Student {
   schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
   status        String    @default("active")
   gender        Gender?
+  guardianName  String?   // parent or guardian contact name; separate from login accounts
   dateOfBirth   DateTime? @db.Date
   invoices      Invoice[]
   payments      Payment[]

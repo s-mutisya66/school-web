@@ -1,7 +1,7 @@
 export type ClassOpt = { id: number; name: string; stream: string | null };
 export type ParsedRow = {
   rowNumber: number; admissionNo: string; firstName: string; lastName: string;
-  gender: "MALE" | "FEMALE" | null; dob: Date | null; classId: number;
+  gender: "MALE" | "FEMALE" | null; dob: Date | null; classId: number; guardianName: string | null;
 };
 export type RowError = { row: number; message: string };
 
@@ -13,6 +13,7 @@ const HEADER_NAMES: Record<string, string> = {
   id: "id", admissionno: "admissionNo", admissionnumber: "admissionNo", admno: "admissionNo",
   fname: "firstName", firstname: "firstName", lname: "lastName", lastname: "lastName", surname: "lastName",
   gender: "gender", sex: "gender", dob: "dob", dateofbirth: "dob", stream: "stream", class: "stream",
+  parentname: "guardianName", parent: "guardianName", guardianname: "guardianName", guardian: "guardianName",
 };
 
 export function parseGender(raw: string): { value: "MALE" | "FEMALE" | null; error?: string } {
@@ -97,6 +98,9 @@ export function readStudentRows(table: string[][], classes: ClassOpt[]): { rows:
     if (!lastName) problems.push("Lname is empty.");
     if (admissionNo.length > 30 || firstName.length > 60 || lastName.length > 60) problems.push("A value is too long.");
 
+    const guardianName = cell(r, "guardianName").trim();
+    if (guardianName.length > 100) problems.push("Parent Name is too long.");
+
     const key = admissionNo.toLowerCase();
     if (admissionNo && seen.has(key)) problems.push(`Admission No. ${admissionNo} is already used on row ${seen.get(key)}.`);
     else if (admissionNo) seen.set(key, rowNumber);
@@ -109,7 +113,7 @@ export function readStudentRows(table: string[][], classes: ClassOpt[]): { rows:
     if (c.error) problems.push(c.error);
 
     if (problems.length) problems.forEach((message) => errors.push({ row: rowNumber, message }));
-    else rows.push({ rowNumber, admissionNo, firstName, lastName, gender: g.value, dob: d.value, classId: c.id! });
+    else rows.push({ rowNumber, admissionNo, firstName, lastName, gender: g.value, dob: d.value, classId: c.id!, guardianName: guardianName || null });
   }
 
   if (rows.length === 0 && errors.length === 0) errors.push({ row: 2, message: "There are no student rows in the file." });
