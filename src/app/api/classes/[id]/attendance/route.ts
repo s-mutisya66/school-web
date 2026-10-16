@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/auth";
+import { canAccessClass, forbidden, requireRole } from "@/lib/auth";
 import { bad } from "@/lib/http";
 import { parseDay, todayNairobi } from "@/lib/dates";
 
@@ -12,6 +12,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (guard instanceof NextResponse) return guard;
 
   const classId = Number((await params).id);
+  if (!(await canAccessClass(guard, classId))) return forbidden();
   const date = parseDay(new URL(req.url).searchParams.get("date"));
   if (!date) return bad("Choose a valid date.");
 
@@ -31,6 +32,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (guard instanceof NextResponse) return guard;
 
   const classId = Number((await params).id);
+  if (!(await canAccessClass(guard, classId))) return forbidden();
   const body = await req.json().catch(() => ({}));
   const date = parseDay(body.date);
   if (!date) return bad("Choose a valid date.");

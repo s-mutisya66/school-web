@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 import { hashPassword, requireRole } from "@/lib/auth";
 import { bad, uniqueError } from "@/lib/http";
 
-const select = { id: true, name: true, email: true, role: true, children: { select: { id: true, firstName: true, lastName: true } } };
+const select = { id: true, name: true, email: true, role: true, children: { select: { id: true, firstName: true, lastName: true } },
+  assignments: { select: { id: true, schoolClassId: true, subjectId: true, schoolClass: { select: { id: true, name: true, stream: true } }, subject: { select: { id: true, name: true } } } } };
 
 export async function GET(req: Request) {
   const guard = await requireRole("ADMIN");

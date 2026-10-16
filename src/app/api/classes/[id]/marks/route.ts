@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/auth";
+import { canAccessClass, canMarkSubject, forbidden, requireRole } from "@/lib/auth";
 import { bad } from "@/lib/http";
 
-// TODO: once teachers are assigned to classes and subjects, limit them to their own.
+// Teachers can only reach the classes they're assigned to.
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const guard = await requireRole("ADMIN", "TEACHER");
   if (guard instanceof NextResponse) return guard;
 
   const classId = Number((await params).id);
+  if (!(await canAccessClass(guard, classId))) return forbidden();
   const q = new URL(req.url).searchParams;
   const examId = Number(q.get("examId")), subjectId = Number(q.get("subjectId"));
   if (!examId || !subjectId) return bad("Choose an exam and a subject.");
+  if (!(await canMarkSubject(guard, classId, subjectId))) return forbidden();
 
   const exam = await db.exam.findUnique({ where: { id: examId } });
   if (!exam) return bad("Exam not found.", 404);
@@ -33,10 +35,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (guard instanceof NextResponse) return guard;
 
   const classId = Number((await params).id);
+  if (!(await canAccessClass(guard, classId))) return forbidden();
   const b = await req.json().catch(() => ({}));
   const examId = Number(b.examId), subjectId = Number(b.subjectId);
   const records: { studentId: number; score: number }[] = Array.isArray(b.records) ? b.records : [];
   if (!examId || !subjectId) return bad("Choose an exam and a subject.");
+  if (!(await canMarkSubject(guard, classId, subjectId))) return forbidden();
   if (records.length === 0) return bad("Enter at least one mark before saving.");
 
   const exam = await db.exam.findUnique({ where: { id: examId } });

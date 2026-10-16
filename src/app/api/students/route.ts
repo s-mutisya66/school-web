@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/auth";
+import { requireRole, teacherClassIds } from "@/lib/auth";
 import { bad, uniqueError } from "@/lib/http";
 import { resolveGuardians } from "@/lib/guardians";
 
@@ -12,6 +12,7 @@ const include = {
 export async function GET(req: Request) {
   const guard = await requireRole("ADMIN", "TEACHER");
   if (guard instanceof NextResponse) return guard;
+  const scope = guard.role === "TEACHER" ? await teacherClassIds(guard.userId) : null;
 
   const url = new URL(req.url);
   const q = url.searchParams.get("q")?.trim();
@@ -19,6 +20,7 @@ export async function GET(req: Request) {
 
   const students = await db.student.findMany({
     where: {
+      ...(scope ? { AND: [{ schoolClassId: { in: scope } }] } : {}),
       ...(classId ? { schoolClassId: classId } : {}),
       ...(q
         ? { OR: [

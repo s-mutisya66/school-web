@@ -37,6 +37,7 @@ model SchoolClass {
   students Student[]
   feeItems FeeStructure[]
   attendance Attendance[]
+  assignments TeachingAssignment[]
 }
 
 model Student {
@@ -128,6 +129,7 @@ model User {
   role         Role
   children     Student[] @relation("Guardians") // only used for PARENT users
   attendanceMarked Attendance[] @relation("AttendanceMarker")
+  assignments      TeachingAssignment[] // only used for TEACHER users
 }
 
 enum AttendanceStatus {
@@ -154,9 +156,10 @@ model Attendance {
 }
 
 model Subject {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  marks Mark[]
+  id          Int                  @id @default(autoincrement())
+  name        String               @unique
+  marks       Mark[]
+  assignments TeachingAssignment[]
 }
 
 // An assessment in a term, e.g. "Opening exam", "Mid-term", "End-term".
@@ -167,7 +170,6 @@ model Exam {
   outOf  Int    @default(100)
   term   Term   @relation(fields: [termId], references: [id])
   marks  Mark[]
-  position Int    @default(0)
 
   @@unique([termId, name])
 }
@@ -189,4 +191,19 @@ model Mark {
 enum Gender {
   MALE
   FEMALE
+}
+
+// Which class (and optionally which subject) a teacher is responsible for.
+// subjectId = null means all subjects in that class. Replaced wholesale when an admin saves.
+model TeachingAssignment {
+  id            Int         @id @default(autoincrement())
+  teacherId     Int
+  schoolClassId Int
+  subjectId     Int?
+  teacher       User        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id], onDelete: Cascade)
+  subject       Subject?    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@index([schoolClassId])
 }

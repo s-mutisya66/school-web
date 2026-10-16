@@ -8,6 +8,7 @@ export async function GET() {
   if (guard instanceof NextResponse) return guard;
 
   const classes = await db.schoolClass.findMany({
+    where: guard.role === "TEACHER" ? { assignments: { some: { teacherId: guard.userId } } } : {},
     include: { _count: { select: { students: true } } },
     orderBy: [{ name: "asc" }, { stream: "asc" }],
   });

@@ -64,3 +64,30 @@ export async function requireRole(...roles: Role[]): Promise<Session | NextRespo
   if (!s) return unauthorized();
   return roles.includes(s.role) ? s : forbidden();
 }
+
+/** The ids of the classes a teacher has any assignment in. */
+export async function teacherClassIds(userId: number): Promise<number[]> {
+  const rows = await db.teachingAssignment.findMany({ where: { teacherId: userId }, select: { schoolClassId: true }, distinct: ["schoolClassId"] });
+  return rows.map((r) => r.schoolClassId);
+}
+
+/** Admins can use any class; teachers only the classes they're assigned to. */
+export async function canAccessClass(s: Session, classId: number): Promise<boolean> {
+  if (s.role === "ADMIN") return true;
+  if (s.role !== "TEACHER") return false;
+  return (await db.teachingAssignment.count({ where: { teacherId: s.userId, schoolClassId: classId } })) > 0;
+}
+
+/** The subjects someone may enter marks for in a class: every subject, or a list of subject ids. */
+export async function markableSubjects(s: Session, classId: number): Promise<"all" | number[]> {
+  if (s.role === "ADMIN") return "all";
+  if (s.role !== "TEACHER") return [];
+  const rows = await db.teachingAssignment.findMany({ where: { teacherId: s.userId, schoolClassId: classId }, select: { subjectId: true } });
+  if (rows.some((r) => r.subjectId === null)) return "all";
+  return rows.map((r) => r.subjectId as number);
+}
+
+export async function canMarkSubject(s: Session, classId: number, subjectId: number): Promise<boolean> {
+  const allowed = await markableSubjects(s, classId);
+  return allowed === "all" || allowed.includes(subjectId);
+}

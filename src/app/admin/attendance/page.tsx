@@ -19,6 +19,7 @@ const today = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in the
 export default function Attendance() {
   const router = useRouter();
   const [classes, setClasses] = useState<Cls[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [classId, setClassId] = useState("");
   const [date, setDate] = useState(today());
   const [rows, setRows] = useState<Row[]>([]);
@@ -29,6 +30,7 @@ export default function Attendance() {
     fetch("/api/classes").then(async (r) => {
       if (r.status === 401) return router.push("/login");
       if (r.ok) setClasses(await r.json());
+      setLoaded(true);
     });
   }, [router]);
 
@@ -80,6 +82,10 @@ export default function Attendance() {
           </button>
         )}
       </div>
+
+      {loaded && classes.length === 0 && (
+        <p className="mt-6 rounded-md bg-amber-100 px-4 py-3 text-amber-900">No classes available. If you're a teacher, ask an admin to assign you to your class.</p>
+      )}
 
       {msg && <p role="status" className={`mt-4 rounded-md px-4 py-3 ${msg.ok ? "bg-emerald-100 text-emerald-900" : "bg-rose-100 text-rose-900"}`}>{msg.text}</p>}
 

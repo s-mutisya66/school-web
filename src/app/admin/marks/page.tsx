@@ -14,6 +14,7 @@ export default function Marks() {
   const [exams, setExams] = useState<(Opt & { outOf: number })[]>([]);
   const [subjects, setSubjects] = useState<Opt[]>([]);
   const [classes, setClasses] = useState<Opt[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [termId, setTermId] = useState("");
   const [examId, setExamId] = useState("");
   const [subjectId, setSubjectId] = useState("");
@@ -45,6 +46,7 @@ export default function Marks() {
       if (t) { setTerms(t); setTermId(String((t.find((x: { isCurrent: boolean }) => x.isCurrent) ?? t[0])?.id ?? "")); }
       if (c) setClasses(c.map((x: { id: number; name: string; stream: string | null }) => ({ id: x.id, label: x.stream ? `${x.name} ${x.stream}` : x.name })));
       loadSubjects();
+      setLoaded(true);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -56,6 +58,16 @@ export default function Marks() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [termId]);
   useEffect(() => { loadExams(); }, [loadExams]);
+
+  // Only offer the subjects this person may enter marks for in the chosen class.
+  useEffect(() => {
+    if (!classId) return;
+    (async () => {
+      const s = await api(`/api/classes/${classId}/subjects`);
+      if (s) { setSubjects(s.map((x: { id: number; name: string }) => ({ id: x.id, label: x.name }))); setSubjectId(""); }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classId]);
 
   useEffect(() => {
     if (!classId || !examId || !subjectId) return setRows([]);
@@ -120,6 +132,10 @@ export default function Marks() {
         <Select label="Subject" value={subjectId} set={setSubjectId} opts={subjects} />
       </div>
       {termId && exams.length === 0 && <p className="mt-3 text-sm text-slate-600">This term has no exams yet. An admin can add one above.</p>}
+
+      {loaded && classes.length === 0 && (
+        <p className="mt-4 rounded-md bg-amber-100 px-4 py-3 text-amber-900">No classes available. If you're a teacher, ask an admin to assign you to your class.</p>
+      )}
 
       {msg && <p role="status" className={`mt-4 rounded-md px-4 py-3 ${msg.ok ? "bg-emerald-100 text-emerald-900" : "bg-rose-100 text-rose-900"}`}>{msg.text}</p>}
 
