@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { StudentsCsv } from "@/components/students-csv";
 
 type Cls = { id: number; name: string; stream: string | null; _count: { students: number } };
-type Parent = { id: number; name: string; email: string };
+type Parent = { id: number; name: string; email: string | null; phone: string | null };
 type Student = {
   id: number; admissionNo: string; firstName: string; lastName: string; status: string; guardianName: string | null;
   schoolClass: Cls; guardians: Parent[];
@@ -74,7 +74,7 @@ export default function Students() {
   async function editParents(s: Student) {
     const name = window.prompt("Parent's name (leave blank for none)", s.guardianName ?? s.guardians[0]?.name ?? "");
     if (name === null) return;
-    const next = window.prompt("Emails of parent logins to link, separated by commas (leave blank for none)", s.guardians.map((g) => g.email).join(", "));
+    const next = window.prompt("Emails or phone numbers of parent logins to link, separated by commas (leave blank for none)", s.guardians.map((g) => g.email ?? g.phone ?? "").join(", "));
     if (next === null) return;
     const emails = next.split(",").map((x) => x.trim()).filter(Boolean);
     if (await call(`/api/students/${s.id}`, "PATCH", { guardianName: name, guardianEmails: emails })) load();
@@ -122,8 +122,8 @@ export default function Students() {
             <label className="col-span-2 text-sm font-medium">Parent's name (optional)
               <input value={form.parentName} onChange={(e) => setForm({ ...form, parentName: e.target.value })} className={input} />
             </label>
-            <label className="col-span-2 text-sm font-medium">Parent email (optional, links an existing parent login)
-              <input type="email" value={form.parentEmail} onChange={(e) => setForm({ ...form, parentEmail: e.target.value })} className={input} />
+            <label className="col-span-2 text-sm font-medium">Parent email or phone (optional, links an existing parent login)
+              <input value={form.parentEmail} onChange={(e) => setForm({ ...form, parentEmail: e.target.value })} className={input} />
             </label>
           </div>
           <button className="mt-3 rounded-md bg-slate-900 px-4 py-2 font-semibold text-white">Add student</button>

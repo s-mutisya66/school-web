@@ -1,7 +1,7 @@
 export type ClassOpt = { id: number; name: string; stream: string | null };
 export type ParsedRow = {
   rowNumber: number; admissionNo: string; firstName: string; lastName: string;
-  gender: "MALE" | "FEMALE" | null; dob: Date | null; classId: number; guardianName: string | null;
+  gender: "MALE" | "FEMALE" | null; dob: Date | null; classId: number; guardianName: string | null; phone: string | null; email: string | null;
 };
 export type RowError = { row: number; message: string };
 
@@ -14,7 +14,21 @@ const HEADER_NAMES: Record<string, string> = {
   fname: "firstName", firstname: "firstName", lname: "lastName", lastname: "lastName", surname: "lastName",
   gender: "gender", sex: "gender", dob: "dob", dateofbirth: "dob", stream: "stream", class: "stream",
   parentname: "guardianName", parent: "guardianName", guardianname: "guardianName", guardian: "guardianName",
+  phone: "phone", parentphone: "phone", mobile: "phone", parentmobile: "phone", contact: "phone", parentcontact: "phone",
+  tel: "phone", telephone: "phone", phonenumber: "phone", parentphonenumber: "phone",
+  email: "email", parentemail: "email", guardianemail: "email", parentsemail: "email", emailaddress: "email", parentemailaddress: "email",
 };
+
+/** Kenyan mobile numbers: 0712345678, 712345678 (Excel drops the 0), +254712345678 or 254712345678. Returns 2547XXXXXXXX. */
+export function parsePhone(raw: string): { value: string | null; error?: string } {
+  const s = raw.trim();
+  if (!s) return { value: null };
+  const d = s.replace(/[\s().-]/g, "").replace(/^\+/, "");
+  if (/^0[17]\d{8}$/.test(d)) return { value: "254" + d.slice(1) };
+  if (/^[17]\d{8}$/.test(d)) return { value: "254" + d };
+  if (/^254[17]\d{8}$/.test(d)) return { value: d };
+  return { value: null, error: `Phone number "${s}" isn't a valid Kenyan mobile number. In Excel, format the phone column as Text so the leading 0 isn't lost.` };
+}
 
 export function parseGender(raw: string): { value: "MALE" | "FEMALE" | null; error?: string } {
   const g = norm(raw);
@@ -100,6 +114,10 @@ export function readStudentRows(table: string[][], classes: ClassOpt[]): { rows:
 
     const guardianName = cell(r, "guardianName").trim();
     if (guardianName.length > 100) problems.push("Parent Name is too long.");
+    const ph = parsePhone(cell(r, "phone"));
+    if (ph.error) problems.push(ph.error);
+    const email = cell(r, "email").trim().toLowerCase();
+    if (email && !/^\S+@\S+\.\S+$/.test(email)) problems.push(`Parent Email "${email}" isn't a valid email address.`);
 
     const key = admissionNo.toLowerCase();
     if (admissionNo && seen.has(key)) problems.push(`Admission No. ${admissionNo} is already used on row ${seen.get(key)}.`);
@@ -113,7 +131,7 @@ export function readStudentRows(table: string[][], classes: ClassOpt[]): { rows:
     if (c.error) problems.push(c.error);
 
     if (problems.length) problems.forEach((message) => errors.push({ row: rowNumber, message }));
-    else rows.push({ rowNumber, admissionNo, firstName, lastName, gender: g.value, dob: d.value, classId: c.id!, guardianName: guardianName || null });
+    else rows.push({ rowNumber, admissionNo, firstName, lastName, gender: g.value, dob: d.value, classId: c.id!, guardianName: guardianName || null, phone: ph.value, email: email || null });
   }
 
   if (rows.length === 0 && errors.length === 0) errors.push({ row: 2, message: "There are no student rows in the file." });

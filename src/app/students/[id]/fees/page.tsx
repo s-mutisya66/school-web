@@ -93,6 +93,8 @@ export default function FeeStatement() {
           <span className="space-x-4">
             <a href={`/students/${id}/attendance`} className="underline">Attendance</a>
             <a href={`/students/${id}/report`} className="underline">Report card</a>
+            <a href="/parent" className="underline">My children</a>
+            <a href="/account/password" className="underline">Password</a>
           </span>
         </div>
         <h1 className={`${display.className} mt-1 text-5xl font-bold tracking-tight sm:text-6xl`}>

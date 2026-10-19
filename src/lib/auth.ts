@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { Role } from "@prisma/client";
 import { db } from "./db";
+import { parsePhone } from "./student-csv";
 
 const COOKIE = "session";
 const key = () => new TextEncoder().encode(process.env.AUTH_SECRET);
@@ -11,10 +12,13 @@ const key = () => new TextEncoder().encode(process.env.AUTH_SECRET);
 export type Session = { userId: number; role: Role };
 
 export const hashPassword = (p: string) => bcrypt.hash(p, 10);
+/** Temporary passwords are random and must be changed at first sign-in, so a lighter cost keeps bulk imports fast. */
+export const hashTempPassword = (p: string) => bcrypt.hash(p, 8);
 export const checkPassword = (p: string, hash: string) => bcrypt.compare(p, hash);
 
-export async function startSession(user: { id: number; role: Role }) {
-  const token = await new SignJWT({ role: user.role })
+export async function startSession(user: { id: number; role: Role; mustChangePassword?: boolean }) {
+  // "mcp" marks a session that must choose a new password before it can do anything else.
+  const token = await new SignJWT({ role: user.role, ...(user.mustChangePassword ? { mcp: true } : {}) })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(String(user.id))
     .setExpirationTime("7d")
@@ -33,11 +37,12 @@ export async function endSession() {
   (await cookies()).delete(COOKIE);
 }
 
-export async function getSession(): Promise<Session | null> {
+export async function getSession(opts?: { allowPending?: boolean }): Promise<Session | null> {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, key());
+    if (payload.mcp === true && !opts?.allowPending) return null;
     return { userId: Number(payload.sub), role: payload.role as Role };
   } catch {
     return null;
@@ -90,4 +95,14 @@ export async function markableSubjects(s: Session, classId: number): Promise<"al
 export async function canMarkSubject(s: Session, classId: number, subjectId: number): Promise<boolean> {
   const allowed = await markableSubjects(s, classId);
   return allowed === "all" || allowed.includes(subjectId);
+}
+
+/**
+ * For an account that still has its first password, a phone number typed in any common format
+ * (0712 345 678, +254712345678) is read as 0712345678, which is how the first password is set.
+ */
+export function passwordAttempt(typed: string, pending: boolean): string {
+  if (!pending) return typed;
+  const p = parsePhone(typed);
+  return p.value ? "0" + p.value.slice(3) : typed;
 }

@@ -7,7 +7,7 @@ type Cls = { id: number; name: string; stream: string | null };
 type Subj = { id: number; name: string };
 type Assignment = { schoolClassId: number; subjectId: number | null; schoolClass: Cls; subject: Subj | null };
 type User = {
-  id: number; name: string; email: string; role: "ADMIN" | "TEACHER" | "PARENT";
+  id: number; name: string; email: string | null; phone: string | null; role: "ADMIN" | "TEACHER" | "PARENT";
   children: { id: number; firstName: string; lastName: string }[];
   assignments: Assignment[];
 };
@@ -42,7 +42,7 @@ export default function Users() {
   const [classes, setClasses] = useState<Cls[]>([]);
   const [subjects, setSubjects] = useState<Subj[]>([]);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", role: "PARENT", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", role: "PARENT", password: "" });
   const [editing, setEditing] = useState<number | null>(null);
   const [draft, setDraft] = useState<Draft>({});
 
@@ -63,8 +63,17 @@ export default function Users() {
     const json = await res.json();
     if (!res.ok) return setMsg({ ok: false, text: json.error });
     setMsg({ ok: true, text: `Account created for ${json.name}. Share the temporary password with them privately.` });
-    setForm({ ...form, name: "", email: "", password: "" });
+    setForm({ ...form, name: "", email: "", phone: "", password: "" });
     load();
+  }
+
+  async function reset(u: User) {
+    if (!window.confirm(`Reset the password for ${u.name}? Their current password will stop working.`)) return;
+    const res = await fetch(`/api/users/${u.id}/password`, { method: "PUT" });
+    const json = await res.json().catch(() => ({}));
+    setMsg(res.ok
+      ? { ok: true, text: `New temporary password for ${u.name}: ${json.password}. Share it privately. They'll be asked to choose their own when they sign in.` }
+      : { ok: false, text: json.error ?? "Something went wrong." });
   }
 
   async function save() {
@@ -93,8 +102,11 @@ export default function Users() {
           <label className="text-sm font-medium">Full name
             <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={input} />
           </label>
-          <label className="text-sm font-medium">Email
-            <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={input} />
+          <label className="text-sm font-medium">Email (optional if there's a phone)
+            <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={input} />
+          </label>
+          <label className="text-sm font-medium">Phone (optional if there's an email)
+            <input inputMode="tel" placeholder="0712 345 678" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={input} />
           </label>
           <label className="text-sm font-medium">Role
             <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className={input}>
@@ -118,8 +130,8 @@ export default function Users() {
             <Fragment key={u.id}>
               <tr>
                 <td className="py-3 pr-4 align-top">{u.name}</td>
-                <td className="pr-4 align-top">{u.email}</td>
-                <td className="pr-4 align-top">{ROLE[u.role]}</td>
+                <td className="pr-4 align-top">{u.email ?? u.phone}</td>
+                <td className="pr-4 align-top">{ROLE[u.role]}<br /><button onClick={() => reset(u)} className="text-sm underline">Reset password</button></td>
                 <td className="py-3 align-top">
                   {u.role === "PARENT" && (u.children.length ? u.children.map((c) => `${c.firstName} ${c.lastName}`).join(", ") : "None linked")}
                   {u.role === "TEACHER" && (

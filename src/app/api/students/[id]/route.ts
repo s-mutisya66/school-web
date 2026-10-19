@@ -26,7 +26,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const updated = await db.student.update({
       where: { id: Number((await params).id) },
       data,
-      include: { schoolClass: true, guardians: { select: { id: true, name: true, email: true } } },
+      include: { schoolClass: true, guardians: { select: { id: true, name: true, email: true, phone: true } } },
     });
     return NextResponse.json(updated);
   } catch (e) {

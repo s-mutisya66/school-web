@@ -43,7 +43,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {l.label}
             </Link>
           ))}
-          <button onClick={signOut} className="ml-auto text-sm text-slate-600 hover:text-slate-900">Sign out</button>
+          <Link href="/account/password" className="ml-auto text-sm text-slate-600 hover:text-slate-900">Password</Link>
+          <button onClick={signOut} className="text-sm text-slate-600 hover:text-slate-900">Sign out</button>
         </div>
       </nav>
       {children}

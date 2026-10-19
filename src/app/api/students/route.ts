@@ -6,7 +6,7 @@ import { resolveGuardians } from "@/lib/guardians";
 
 const include = {
   schoolClass: true,
-  guardians: { select: { id: true, name: true, email: true } },
+  guardians: { select: { id: true, name: true, email: true, phone: true } },
 };
 
 export async function GET(req: Request) {

@@ -50,6 +50,7 @@ model Student {
   status        String    @default("active")
   gender        Gender?
   guardianName  String?   // parent or guardian contact name; separate from login accounts
+  guardianPhone String?   // parent contact number (2547XXXXXXXX); not a login
   dateOfBirth   DateTime? @db.Date
   invoices      Invoice[]
   payments      Payment[]
@@ -123,7 +124,9 @@ enum Role {
 
 model User {
   id           Int       @id @default(autoincrement())
-  email        String    @unique
+  email        String?   @unique
+  phone        String?   @unique // 2547XXXXXXXX, an alternative login
+  mustChangePassword Boolean @default(false)
   name         String
   passwordHash String
   role         Role

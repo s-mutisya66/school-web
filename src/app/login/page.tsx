@@ -19,7 +19,7 @@ export default function Login() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    const json = await res.json();
+    const json = await res.json().catch(() => ({ error: "Something went wrong. Please try again." }));
     setBusy(false);
     if (!res.ok) return setError(json.error);
     router.push(json.redirect);
@@ -31,8 +31,8 @@ export default function Login() {
       <p className="mt-2 text-slate-600">Parents see their children's fees. School staff manage invoices.</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
         <label className="block text-sm font-medium">
-          Email
-          <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
+          Email or phone number
+          <input type="text" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)}
                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-base" />
         </label>
         <label className="block text-sm font-medium">
