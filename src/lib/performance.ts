@@ -1,104 +1,125 @@
 import { db } from "./db";
-import { gradeFor, gradeFromPoints } from "./grading";
+import { gradeFor } from "./grading";
+import { sortExams } from "./exams";
 import { classLabel } from "./student-csv";
+import { rankRows, type SheetRow } from "./sheet";
 
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const r1 = (n: number) => Math.round(n * 10) / 10;
-const EPS = 1e-9;
-
-/** Positions for a list already sorted high to low; ties share a position. */
-function withPositions<T extends { mean: number }>(sorted: T[]) {
-  let pos = 0, prev = Infinity;
-  return sorted.map((x, i) => {
-    if (x.mean < prev - EPS) { pos = i + 1; prev = x.mean; }
-    return { ...x, position: pos };
-  });
-}
+const sex = (g: "MALE" | "FEMALE" | null) => (g === "MALE" ? "M" : g === "FEMALE" ? "F" : "");
 
 /**
- * Class and year-group performance for the given terms. "Year group" means the class name
- * (Form 1, Form 2, ...), so every stream of a form is ranked together. A subject's score is
- * the mean of its exam percentages; a student's mean is the mean of their subject scores.
+ * Performance for one term, one exam at a time. Exams are never averaged together: each exam has its
+ * own scores, averages, grades and positions. A student's average in an exam is the mean of their subject
+ * percentages in it, and the grade comes straight from that average. "Form" means the class name
+ * (Form 1, Form 2, ...), so every stream of a form is ranked together.
+ * The trend for every exam in the term is returned too, for the progress chart.
  */
-export async function buildPerformance(termIds: number[]) {
+export async function buildPerformance(termId: number, wantedExamId?: number) {
+  const exams = sortExams(await db.exam.findMany({ where: { termId }, select: { id: true, name: true } }));
+  if (exams.length === 0) return { exams: [], examId: null as number | null, forms: [] };
+
   const [marks, classes] = await Promise.all([
     db.mark.findMany({
-      where: { exam: { termId: { in: termIds } }, student: { status: "active" } },
+      where: { exam: { termId }, student: { status: "active" } },
       select: {
-        score: true,
+        examId: true, score: true,
         exam: { select: { outOf: true } },
         subject: { select: { id: true, name: true } },
-        student: { select: { id: true, firstName: true, lastName: true, admissionNo: true, schoolClassId: true } },
+        student: { select: { id: true, firstName: true, lastName: true, admissionNo: true, gender: true, schoolClassId: true } },
       },
     }),
     db.schoolClass.findMany(),
   ]);
   const classById = new Map(classes.map((c) => [c.id, c]));
+  const formOf = (classId: number) => classById.get(classId)!.name;
 
+  type Stu = { id: number; name: string; gender: string; admissionNo: string; classId: number; pct: Map<number, number> };
+  const byExam = new Map<number, Map<number, Stu>>();
   const subjectNames = new Map<number, string>();
-  const perStudent = new Map<number, { name: string; admissionNo: string; classId: number; pcts: Map<number, number[]> }>();
   for (const m of marks) {
     subjectNames.set(m.subject.id, m.subject.name);
-    const s = perStudent.get(m.student.id) ?? { name: `${m.student.firstName} ${m.student.lastName}`, admissionNo: m.student.admissionNo, classId: m.student.schoolClassId, pcts: new Map() };
-    s.pcts.set(m.subject.id, [...(s.pcts.get(m.subject.id) ?? []), (m.score / m.exam.outOf) * 100]);
-    perStudent.set(m.student.id, s);
-  }
-
-  const students = [...perStudent].map(([id, s]) => {
-    const subjectAvgs = [...s.pcts].map(([sid, v]) => [sid, mean(v)] as const);
-    return {
-      id, name: s.name, admissionNo: s.admissionNo, classId: s.classId,
-      subjectsCounted: subjectAvgs.length,
-      mean: mean(subjectAvgs.map((a) => a[1])),
-      points: mean(subjectAvgs.map((a) => gradeFor(a[1]).points)),
-      subjectAvgs,
+    const inExam = byExam.get(m.examId) ?? new Map<number, Stu>();
+    const s = inExam.get(m.student.id) ?? {
+      id: m.student.id, name: `${m.student.firstName} ${m.student.lastName}`, gender: sex(m.student.gender),
+      admissionNo: m.student.admissionNo, classId: m.student.schoolClassId, pct: new Map<number, number>(),
     };
-  });
-
-  const subjectMeans = (group: typeof students) => {
-    const by = new Map<number, number[]>();
-    for (const st of group) for (const [sid, a] of st.subjectAvgs) by.set(sid, [...(by.get(sid) ?? []), a]);
-    return [...by].map(([sid, v]) => ({ name: subjectNames.get(sid)!, mean: r1(mean(v)) })).sort((a, b) => b.mean - a.mean);
-  };
-
-  const forms = new Map<string, typeof students>();
-  for (const st of students) {
-    const form = classById.get(st.classId)!.name;
-    forms.set(form, [...(forms.get(form) ?? []), st]);
+    s.pct.set(m.subject.id, (m.score / m.exam.outOf) * 100);
+    inExam.set(s.id, s);
+    byExam.set(m.examId, inExam);
   }
 
-  return [...forms]
-    .map(([name, group]) => {
+  const studentsOf = (examId: number) =>
+    [...(byExam.get(examId)?.values() ?? [])].map((s) => ({ ...s, subjectsCounted: s.pct.size, mean: r1(mean([...s.pct.values()])) }));
+  const examStudents = new Map(exams.map((e) => [e.id, studentsOf(e.id)]));
+  const hasMarks = (id: number) => (examStudents.get(id)?.length ?? 0) > 0;
+  const selected = exams.find((e) => e.id === wantedExamId) ?? [...exams].reverse().find((e) => hasMarks(e.id)) ?? exams[0];
+
+  const formNames = [...new Set([...examStudents.values()].flat().map((s) => formOf(s.classId)))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  const forms = formNames.map((form) => {
+    const inForm = <T extends { classId: number }>(s: T) => formOf(s.classId) === form;
+    const formClasses = classes.filter((c) => c.name === form).sort((a, b) => (a.stream ?? "").localeCompare(b.stream ?? ""));
+
+    // How the form and each stream did in every exam, for the progress chart.
+    const trend = exams.map((e) => {
+      const sts = examStudents.get(e.id)!.filter(inForm);
+      return {
+        examId: e.id, name: e.name,
+        mean: sts.length ? r1(mean(sts.map((s) => s.mean))) : null,
+        classes: formClasses.map((c) => {
+          const cs = sts.filter((s) => s.classId === c.id);
+          return { label: classLabel(c), mean: cs.length ? r1(mean(cs.map((s) => s.mean))) : null };
+        }),
+      };
+    });
+
+    // The full picture for the selected exam.
+    const group = examStudents.get(selected.id)!.filter(inForm);
+    let detail = null;
+    if (group.length) {
+      const columnIds = [...new Set(group.flatMap((s) => [...s.pct.keys()]))].sort((a, b) => subjectNames.get(a)!.localeCompare(subjectNames.get(b)!));
       const maxSubjects = Math.max(...group.map((s) => s.subjectsCounted));
+      const subjectMean = (g: typeof group, id: number) => {
+        const v = g.filter((s) => s.pct.has(id)).map((s) => s.pct.get(id)!);
+        return v.length ? mean(v) : null;
+      };
 
-      const byClass = new Map<number, typeof students>();
-      for (const st of group) byClass.set(st.classId, [...(byClass.get(st.classId) ?? []), st]);
-      const classRows = withPositions(
-        [...byClass].map(([classId, g]) => {
-          const subs = subjectMeans(g);
-          return {
-            id: classId, label: classLabel(classById.get(classId)!), students: g.length,
-            mean: r1(mean(g.map((s) => s.mean))), grade: gradeFromPoints(mean(g.map((s) => s.points))),
-            best: subs[0] ?? null, weakest: subs.length > 1 ? subs[subs.length - 1] : null,
-          };
-        }).sort((a, b) => b.mean - a.mean),
-      );
-
-      const ranking = withPositions(
-        [...group].sort((a, b) => b.mean - a.mean).map((s) => ({
-          id: s.id, name: s.name, admissionNo: s.admissionNo,
-          className: classLabel(classById.get(s.classId)!),
-          subjectsCounted: s.subjectsCounted,
-          incomplete: s.subjectsCounted < maxSubjects, // fewer subjects marked than classmates, so the mean isn't like for like
-          mean: r1(s.mean), grade: gradeFromPoints(s.points),
+      const rows: SheetRow[] = rankRows(
+        group.map((s) => ({
+          id: s.id, name: s.name, gender: s.gender, admissionNo: s.admissionNo, className: classLabel(classById.get(s.classId)!),
+          scores: columnIds.map((id) => (s.pct.has(id) ? r1(s.pct.get(id)!) : null)),
+          // Fewer subjects marked than classmates, so the average isn't like for like.
+          incomplete: s.subjectsCounted < maxSubjects,
+          mean: s.mean, grade: gradeFor(s.mean),
         })),
       );
 
-      return {
-        name, students: group.length,
-        mean: r1(mean(group.map((s) => s.mean))), grade: gradeFromPoints(mean(group.map((s) => s.points))),
-        classes: classRows, subjects: subjectMeans(group), ranking,
+      const classRanking = rankRows(
+        formClasses.flatMap((c) => {
+          const cs = group.filter((s) => s.classId === c.id);
+          if (!cs.length) return [];
+          const subs = columnIds.map((id) => ({ name: subjectNames.get(id)!, mean: subjectMean(cs, id) })).filter((x): x is { name: string; mean: number } => x.mean !== null).sort((a, b) => b.mean - a.mean);
+          const m = r1(mean(cs.map((s) => s.mean)));
+          return [{
+            id: c.id, label: classLabel(c), students: cs.length, mean: m, grade: gradeFor(m),
+            best: subs[0] ? { name: subs[0].name, mean: r1(subs[0].mean) } : null,
+            weakest: subs.length > 1 ? { name: subs[subs.length - 1].name, mean: r1(subs[subs.length - 1].mean) } : null,
+          }];
+        }),
+      );
+
+      const m = r1(mean(group.map((s) => s.mean)));
+      detail = {
+        students: group.length, mean: m, grade: gradeFor(m),
+        columns: columnIds.map((id) => ({ id, name: subjectNames.get(id)! })),
+        subjectMeans: columnIds.map((id) => ({ name: subjectNames.get(id)!, mean: r1(subjectMean(group, id)!) })).sort((a, b) => b.mean - a.mean),
+        classes: classRanking, rows,
       };
-    })
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    }
+
+    return { name: form, trend, detail };
+  });
+
+  return { exams: exams.map((e) => ({ id: e.id, name: e.name, hasMarks: hasMarks(e.id) })), examId: selected.id, forms };
 }

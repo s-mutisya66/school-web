@@ -8,7 +8,7 @@ import { StudentsCsv } from "@/components/students-csv";
 type Cls = { id: number; name: string; stream: string | null; _count: { students: number } };
 type Parent = { id: number; name: string; email: string | null; phone: string | null };
 type Student = {
-  id: number; admissionNo: string; firstName: string; lastName: string; status: string; guardianName: string | null;
+  id: number; admissionNo: string; firstName: string; lastName: string; status: string; guardianName: string | null; gender: "MALE" | "FEMALE" | null;
   schoolClass: Cls; guardians: Parent[];
 };
 
@@ -165,7 +165,7 @@ export default function Students() {
             {students.map((s) => (
               <tr key={s.id} className={s.status === "inactive" ? "text-slate-400" : ""}>
                 <td className="py-3 pr-4">{s.admissionNo}</td>
-                <td className="pr-4">{s.firstName} {s.lastName}{s.status === "inactive" && " (inactive)"}</td>
+                <td className="pr-4">{s.firstName} {s.lastName}{s.gender && <span className="ml-1 text-slate-500">({s.gender === "MALE" ? "M" : "F"})</span>}{s.status === "inactive" && " (inactive)"}</td>
                 <td className="pr-4">{label(s.schoolClass)}</td>
                 <td className="pr-4">{s.guardians.length ? s.guardians.map((g) => g.name).join(", ") : s.guardianName ? `${s.guardianName} (no login)` : "None"}</td>
                 <td className="space-x-3 whitespace-nowrap text-sm">
