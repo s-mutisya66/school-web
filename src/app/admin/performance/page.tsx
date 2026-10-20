@@ -103,7 +103,7 @@ export default function Performance() {
             <div className="mt-6 space-y-10">
               <section>
                 <h2 className="text-xl font-semibold">{form.name} progress this term</h2>
-                <p className="mb-2 text-sm text-slate-600">Mean score in each exam, from the opener to the end-term. The thick line is the whole form, the others are its streams.</p>
+                <p className="mb-2 text-sm text-slate-600">Mean score in each exam, from the opener to the end-term. In each group the first bar is the whole form and the rest are its streams.</p>
                 <ProgressChart
                   labels={form.trend.map((t) => t.name)}
                   series={[

@@ -68,7 +68,8 @@ export function buildSheetPdf({ title, subtitle, columns, rows, gradeScale }: Op
     doc.setPage(i);
     doc.setFontSize(7.5);
     doc.setTextColor(110);
-    doc.text(`Grades: ${gradeScale}.  * marks entered for fewer subjects than classmates.`, 14, 203);
+    doc.text(`Grades: ${gradeScale}.`, 14, 198.5);
+    doc.text("* marks entered for fewer subjects than classmates.", 14, 202.5);
     doc.text(`Page ${i} of ${pages}   ${made}`, 283, 203, { align: "right" });
   }
   return doc;
