@@ -1,39 +1,17 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { checkPassword, startSession } from "@/lib/auth";
+import { forbidden, getSession, unauthorized } from "@/lib/auth";
+import { buildAdminDashboard, buildTeacherDashboard } from "@/lib/dashboard";
 
-// TODO: add rate limiting before this goes anywhere public.
-export async function POST(req: Request) {
-  try {
-    const { email, password } = await req.json().catch(() => ({}));
+/** The numbers behind the home page. Admins get the school overview, teachers get their own classes. */
+export async function GET() {
+  const session = await getSession();
+  if (!session) return unauthorized();
 
-    const user =
-      typeof email === "string"
-        ? await db.user.findUnique({
-            where: { email: email.toLowerCase().trim() },
-            include: { children: { select: { id: true }, take: 1 } },
-          })
-        : null;
+  const user = await db.user.findUnique({ where: { id: session.userId }, select: { name: true, role: true } });
+  if (!user) return unauthorized();
 
-    // Same message for unknown email and wrong password.
-    if (!user || typeof password !== "string" || !(await checkPassword(password, user.passwordHash))) {
-      return NextResponse.json({ error: "Wrong email or password." }, { status: 401 });
-    }
-
-    await startSession(user);
-
-    const redirect =
-      user.role === "ADMIN" ? "/admin/fees"
-      : user.role === "TEACHER" ? "/admin/attendance"
-      : user.role === "PARENT" && user.children[0] ? `/students/${user.children[0].id}/fees`
-      : "/login";
-
-    return NextResponse.json({ redirect });
-  } catch (e) {
-    console.error("Login failed:", e);
-    return NextResponse.json(
-      { error: "The server couldn't reach the database. Wait a few seconds and try again." },
-      { status: 503 },
-    );
-  }
+  if (user.role === "ADMIN") return NextResponse.json({ role: "ADMIN", name: user.name, ...(await buildAdminDashboard()) });
+  if (user.role === "TEACHER") return NextResponse.json({ role: "TEACHER", name: user.name, ...(await buildTeacherDashboard(session.userId)) });
+  return forbidden();
 }

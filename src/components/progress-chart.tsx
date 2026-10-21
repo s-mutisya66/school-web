@@ -17,7 +17,8 @@ function Texture({ id, color, kind }: { id: string; color: string; kind: number 
 }
 
 /** A grouped bar chart: one group of bars per exam, one bar per series (the form first, then its streams). Plain SVG. */
-export function ProgressChart({ labels, series }: { labels: string[]; series: Series[] }) {
+export function ProgressChart({ labels, series, colors }: { labels: string[]; series: Series[]; colors?: string[] }) {
+  const palette = colors && colors.length > 0 ? colors : COLORS;
   const W = 640, H = 300, L = 42, R = 14, T = 24, Bt = 44;
   const all = series.flatMap((s) => s.values).filter((v): v is number => v !== null);
   if (all.length === 0) return <p className="text-sm text-slate-600">No marks have been entered for these exams yet.</p>;
@@ -38,13 +39,13 @@ export function ProgressChart({ labels, series }: { labels: string[]; series: Se
     .map((s) => `${s.name}: ${labels.map((l, i) => `${l} ${s.values[i] ?? "no marks"}`).join(", ")}`)
     .join(". ");
 
-  const fill = (k: number) => (k % 4 === 0 ? COLORS[k % COLORS.length] : `url(#pc-${k})`);
+  const fill = (k: number) => (k % 4 === 0 ? palette[k % palette.length] : `url(#pc-${k})`);
 
   return (
     <figure>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Mean score in each exam, as bars. ${summary}`} className="w-full">
         <defs>
-          {series.map((_, k) => <Texture key={k} id={`pc-${k}`} color={COLORS[k % COLORS.length]} kind={k % 4} />)}
+          {series.map((_, k) => <Texture key={k} id={`pc-${k}`} color={palette[k % palette.length]} kind={k % 4} />)}
         </defs>
 
         {ticks.map((t) => (
