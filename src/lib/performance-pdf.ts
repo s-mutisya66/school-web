@@ -23,20 +23,20 @@ export function buildSheetPdf({ title, subtitle, columns, rows, gradeScale }: Op
 
   const small = columns.length > 10;
   const fixed = 4; // position, name, admission number, class
-  const numeric = Object.fromEntries(Array.from({ length: columns.length + 1 }, (_, i) => [fixed + i, { halign: "center" as const }]));
+  const numeric = Object.fromEntries(Array.from({ length: columns.length + 2 }, (_, i) => [fixed + i, { halign: "center" as const }]));
 
   autoTable(doc, {
     startY: 25,
     margin: { left: 14, right: 14, bottom: 16 },
-    head: [["Pos", "Name", "Adm No", "Class", ...columns.map((c) => c.name), "Average", "Grade"]],
+    head: [["Pos", "Name", "Adm No", "Class", ...columns.map((c) => c.name), "Total", "Average", "Grade"]],
     body: rows.map((r) => [
       r.position, nameWithSex(r) + (r.incomplete ? " *" : ""), r.admissionNo, r.className,
-      ...r.scores.map(fmt), `${fmt(r.mean)}%`, r.grade,
+      ...r.scores.map(fmt), fmt(r.total), `${fmt(r.mean)}%`, r.grade,
     ]),
     styles: { fontSize: small ? 6.5 : 8, cellPadding: small ? 1.2 : 1.6, textColor: 30 },
     headStyles: { fillColor: [20, 33, 61], textColor: 255, halign: "center", valign: "middle" },
     alternateRowStyles: { fillColor: [244, 246, 250] },
-    columnStyles: { 0: { halign: "center", fontStyle: "bold" }, ...numeric, [fixed + columns.length + 1]: { halign: "center", fontStyle: "bold" } },
+    columnStyles: { 0: { halign: "center", fontStyle: "bold" }, ...numeric, [fixed + columns.length]: { halign: "center", fontStyle: "bold" }, [fixed + columns.length + 1]: { halign: "center", fontStyle: "bold" } },
     horizontalPageBreak: true,
     horizontalPageBreakRepeat: [0, 1],
   });

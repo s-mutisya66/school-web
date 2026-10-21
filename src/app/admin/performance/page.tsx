@@ -7,7 +7,7 @@ import { bestBySubject, fmt, nameWithSex, rankRows, type SheetRow } from "@/lib/
 import { GRADE_SCALE } from "@/lib/grading";
 
 type Detail = {
-  students: number; mean: number; grade: string;
+  students: number; outOf: number; mean: number; grade: string;
   columns: { id: number; name: string }[];
   subjectMeans: { name: string; mean: number }[];
   classes: { id: number; label: string; students: number; mean: number; grade: string; position: number; best: { name: string; mean: number } | null; weakest: { name: string; mean: number } | null }[];
@@ -63,7 +63,7 @@ export default function Performance() {
     const scope = stream === "all" ? `${form.name}, all streams` : stream;
     buildSheetPdf({
       title: `${scope}: ${exam.name}`,
-      subtitle: `${termLabel}. Positions are within ${stream === "all" ? "the whole form" : "this class"}. ${rows.length} students.`,
+      subtitle: `${termLabel}. Positions are within ${stream === "all" ? "the whole form" : "this class"}, by average. Marks are out of ${detail.outOf}. ${rows.length} students.`,
       columns: detail.columns, rows, gradeScale: GRADE_SCALE,
     }).save(`${scope}-${exam.name}-${termLabel}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "") + ".pdf");
     setPdfBusy(false);
@@ -187,14 +187,14 @@ export default function Performance() {
                         </button>
                       </div>
                     </div>
-                    <p className="mt-1 text-sm text-slate-600">Positions are within {stream === "all" ? "the whole form" : "the chosen class"}.</p>
+                    <p className="mt-1 text-sm text-slate-600">Positions are within {stream === "all" ? "the whole form" : "the chosen class"}, by average. Subject columns are marks out of {detail.outOf}, Total is their sum, and Average is the mean of the subjects as a percentage.</p>
 
                     <div className="mt-3 overflow-x-auto">
                       <table className="w-full text-left text-sm">
                         <thead className="border-b border-slate-300"><tr>
                           <th className={th}>Pos</th><th className={th}>Name</th><th className={th}>Adm no</th><th className={th}>Class</th>
                           {detail.columns.map((c) => <th key={c.id} className={`${th} text-right`}>{c.name}</th>)}
-                          <th className={`${th} text-right`}>Average</th><th className={th}>Grade</th>
+                          <th className={`${th} text-right`}>Total</th><th className={`${th} text-right`}>Average</th><th className={th}>Grade</th>
                         </tr></thead>
                         <tbody className="divide-y divide-slate-200">
                           {(showAll ? rows : rows.slice(0, 25)).map((r) => (
@@ -203,7 +203,7 @@ export default function Performance() {
                               <td className="pr-3 whitespace-nowrap">{nameWithSex(r)}{r.incomplete && <span title="Marks for fewer subjects than classmates" className="ml-1 text-amber-700">*</span>}</td>
                               <td className="pr-3">{r.admissionNo}</td><td className="pr-3 whitespace-nowrap">{r.className}</td>
                               {r.scores.map((s, i) => <td key={i} className="pr-3 text-right">{fmt(s)}</td>)}
-                              <td className="pr-3 text-right font-semibold">{fmt(r.mean)}%</td><td className="pr-3 font-semibold">{r.grade}</td>
+                              <td className="pr-3 text-right font-semibold">{fmt(r.total)}</td><td className="pr-3 text-right font-semibold">{fmt(r.mean)}%</td><td className="pr-3 font-semibold">{r.grade}</td>
                             </tr>
                           ))}
                         </tbody>

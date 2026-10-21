@@ -16,7 +16,7 @@ const sex = (g: "MALE" | "FEMALE" | null) => (g === "MALE" ? "M" : g === "FEMALE
  * The trend for every exam in the term is returned too, for the progress chart.
  */
 export async function buildPerformance(termId: number, wantedExamId?: number) {
-  const exams = sortExams(await db.exam.findMany({ where: { termId }, select: { id: true, name: true } }));
+  const exams = sortExams(await db.exam.findMany({ where: { termId }, select: { id: true, name: true, outOf: true } }));
   if (exams.length === 0) return { exams: [], examId: null as number | null, forms: [] };
 
   const [marks, classes] = await Promise.all([
@@ -34,7 +34,7 @@ export async function buildPerformance(termId: number, wantedExamId?: number) {
   const classById = new Map(classes.map((c) => [c.id, c]));
   const formOf = (classId: number) => classById.get(classId)!.name;
 
-  type Stu = { id: number; name: string; gender: string; admissionNo: string; classId: number; pct: Map<number, number> };
+  type Stu = { id: number; name: string; gender: string; admissionNo: string; classId: number; pct: Map<number, number>; marks: Map<number, number>; raw: number };
   const byExam = new Map<number, Map<number, Stu>>();
   const subjectNames = new Map<number, string>();
   for (const m of marks) {
@@ -42,9 +42,11 @@ export async function buildPerformance(termId: number, wantedExamId?: number) {
     const inExam = byExam.get(m.examId) ?? new Map<number, Stu>();
     const s = inExam.get(m.student.id) ?? {
       id: m.student.id, name: `${m.student.firstName} ${m.student.lastName}`, gender: sex(m.student.gender),
-      admissionNo: m.student.admissionNo, classId: m.student.schoolClassId, pct: new Map<number, number>(),
+      admissionNo: m.student.admissionNo, classId: m.student.schoolClassId, pct: new Map<number, number>(), marks: new Map<number, number>(), raw: 0,
     };
     s.pct.set(m.subject.id, (m.score / m.exam.outOf) * 100);
+    s.marks.set(m.subject.id, m.score);
+    s.raw += m.score;
     inExam.set(s.id, s);
     byExam.set(m.examId, inExam);
   }
@@ -88,9 +90,9 @@ export async function buildPerformance(termId: number, wantedExamId?: number) {
       const rows: SheetRow[] = rankRows(
         group.map((s) => ({
           id: s.id, name: s.name, gender: s.gender, admissionNo: s.admissionNo, className: classLabel(classById.get(s.classId)!),
-          scores: columnIds.map((id) => (s.pct.has(id) ? r1(s.pct.get(id)!) : null)),
+          scores: columnIds.map((id) => s.marks.get(id) ?? null), // marks as entered, out of the exam total
           // Fewer subjects marked than classmates, so the average isn't like for like.
-          incomplete: s.subjectsCounted < maxSubjects,
+          incomplete: s.subjectsCounted < maxSubjects, total: s.raw,
           mean: s.mean, grade: gradeFor(s.mean),
         })),
       );
@@ -111,7 +113,7 @@ export async function buildPerformance(termId: number, wantedExamId?: number) {
 
       const m = r1(mean(group.map((s) => s.mean)));
       detail = {
-        students: group.length, mean: m, grade: gradeFor(m),
+        students: group.length, outOf: selected.outOf, mean: m, grade: gradeFor(m),
         columns: columnIds.map((id) => ({ id, name: subjectNames.get(id)! })),
         subjectMeans: columnIds.map((id) => ({ name: subjectNames.get(id)!, mean: r1(subjectMean(group, id)!) })).sort((a, b) => b.mean - a.mean),
         classes: classRanking, rows,

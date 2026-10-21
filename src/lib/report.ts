@@ -44,12 +44,14 @@ export async function buildReport(studentId: number, termId: number) {
     const means = [...(pct.get(e.id) ?? [])].map(([sid, subj]) => ({ sid, classId: classOf.get(sid)!, mean: r1(mean([...subj.values()])) }));
     const me = means.find((x) => x.sid === studentId);
     if (!me) {
-      return { id: e.id, name: e.name, outOf: e.outOf, mean: null, grade: null, classPosition: null, classSize: 0, formPosition: null, formSize: 0, classMean: null, formMean: null };
+      return { id: e.id, name: e.name, outOf: e.outOf, total: null, totalOutOf: 0, mean: null, grade: null, classPosition: null, classSize: 0, formPosition: null, formSize: 0, classMean: null, formMean: null };
     }
     const inClass = means.filter((x) => x.classId === student.schoolClassId);
     const position = (list: typeof means) => 1 + list.filter((x) => x.mean > me.mean).length; // ties share a position
+    const myMarks = [...mine].filter(([k]) => k.startsWith(`${e.id}:`)).map(([, v]) => v);
     return {
       id: e.id, name: e.name, outOf: e.outOf,
+      total: myMarks.reduce((a, b) => a + b, 0), totalOutOf: myMarks.length * e.outOf,
       mean: me.mean, grade: gradeFor(me.mean),
       classPosition: position(inClass), classSize: inClass.length,
       formPosition: position(means), formSize: means.length,

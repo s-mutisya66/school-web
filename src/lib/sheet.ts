@@ -1,7 +1,7 @@
 /** Pure helpers shared by the performance page and the PDF. */
 export type SheetRow = {
   id: number; name: string; gender: string; admissionNo: string; className: string;
-  scores: (number | null)[]; incomplete: boolean; mean: number; grade: string; position: number;
+  scores: (number | null)[]; incomplete: boolean; total: number; mean: number; grade: string; position: number;
 };
 
 export const nameWithSex = (r: { name: string; gender: string }) => (r.gender ? `${r.name} (${r.gender})` : r.name);
