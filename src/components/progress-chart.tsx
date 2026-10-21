@@ -18,7 +18,7 @@ function Texture({ id, color, kind }: { id: string; color: string; kind: number 
 
 /** A grouped bar chart: one group of bars per exam, one bar per series (the form first, then its streams). Plain SVG. */
 export function ProgressChart({ labels, series, colors }: { labels: string[]; series: Series[]; colors?: string[] }) {
-  const palette = colors && colors.length > 0 ? colors : COLORS;
+  const palette = colors ?? COLORS;
   const W = 640, H = 300, L = 42, R = 14, T = 24, Bt = 44;
   const all = series.flatMap((s) => s.values).filter((v): v is number => v !== null);
   if (all.length === 0) return <p className="text-sm text-slate-600">No marks have been entered for these exams yet.</p>;
@@ -34,8 +34,7 @@ export function ProgressChart({ labels, series, colors }: { labels: string[]; se
   const barW = Math.min(38, (groupW * 0.8) / series.length);
   const decimals = barW >= 26;
 
-  const summary = series
-    .filter((s) => s.strong)
+  const summary = (series.some((s) => s.strong) ? series.filter((s) => s.strong) : series)
     .map((s) => `${s.name}: ${labels.map((l, i) => `${l} ${s.values[i] ?? "no marks"}`).join(", ")}`)
     .join(". ");
 
@@ -80,8 +79,11 @@ export function ProgressChart({ labels, series, colors }: { labels: string[]; se
 
       <figcaption className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
         {series.map((s, k) => (
-          <span key={s.name} className="flex items-center gap-2">
-            <svg width="16" height="16" aria-hidden="true"><rect width="16" height="16" rx="2" fill={fill(k)} /></svg>
+          <span key={s.name} className="flex items-center gap-2 whitespace-nowrap">
+            <svg width="16" height="16" aria-hidden="true">
+              <defs><Texture id={`pl-${k}`} color={palette[k % palette.length]} kind={k % 4} /></defs>
+              <rect width="16" height="16" rx="2" fill={k % 4 === 0 ? palette[k % palette.length] : `url(#pl-${k})`} />
+            </svg>
             {s.name}
           </span>
         ))}

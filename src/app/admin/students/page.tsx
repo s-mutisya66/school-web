@@ -45,6 +45,7 @@ export default function Students() {
   }, [classId, q]);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { const v = new URLSearchParams(window.location.search).get("q"); if (v) setQ(v); }, []);
 
   async function addClass(e: React.FormEvent) {
     e.preventDefault();

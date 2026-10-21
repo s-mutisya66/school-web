@@ -74,7 +74,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </button>
         <Link href="/admin" className="flex items-center gap-2.5">
           <span className="grid size-9 place-items-center rounded-lg bg-[#C2410C] font-[family-name:var(--font-display)] text-lg font-bold">S</span>
-          <span className="hidden font-[family-name:var(--font-display)] text-lg font-bold sm:inline">{BRAND}</span>
+          <span className="hidden whitespace-nowrap font-[family-name:var(--font-display)] text-lg font-bold sm:inline">{BRAND}</span>
         </Link>
 
         {me?.role === "ADMIN" && (
