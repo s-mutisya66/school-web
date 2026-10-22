@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Printer } from "lucide-react";
 import { ReportSheet, type Report } from "@/components/report-sheet";
+import { StudentHeader } from "@/components/student-header";
 
 export default function ReportCard() {
   const { id } = useParams<{ id: string }>();
@@ -22,24 +24,29 @@ export default function ReportCard() {
 
   useEffect(() => { load(); }, [load]);
 
-  if (error) return <main className="p-8 text-slate-700">{error}</main>;
-  if (!report) return <main className="p-8 text-slate-600">Loading report card…</main>;
-
   return (
-    <main className="min-h-screen bg-stone-100 text-slate-900 print:bg-white">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:py-10">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
-          <select aria-label="Term" value={termId ?? ""} onChange={(e) => load(Number(e.target.value))} className="rounded-md border border-slate-300 bg-white px-3 py-2">
-            {terms.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-          </select>
-          <div className="space-x-4 text-sm">
-            <a href={`/students/${id}/fees`} className="underline">Fees</a>
-            <a href="/parent" className="underline">My children</a>
-            <button onClick={() => window.print()} className="underline">Print</button>
+    <main className="mx-auto max-w-5xl space-y-5 p-4 sm:p-6 print:max-w-none print:p-0">
+      <StudentHeader id={id} active="report" compact />
+
+      {error ? (
+        <p className="text-slate-700">{error}</p>
+      ) : !report ? (
+        <p className="text-slate-600">Loading report card…</p>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
+            <label className="flex items-center gap-2 text-sm font-medium">Term
+              <select value={termId ?? ""} onChange={(e) => load(Number(e.target.value))} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal">
+                {terms.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+              </select>
+            </label>
+            <button onClick={() => window.print()} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold hover:bg-slate-50">
+              <Printer size={16} aria-hidden="true" /> Print or save as PDF
+            </button>
           </div>
-        </div>
-        <ReportSheet report={report} termLabel={terms.find((t) => t.id === termId)?.label ?? ""} />
-      </div>
+          <ReportSheet report={report} termLabel={terms.find((t) => t.id === termId)?.label ?? ""} />
+        </>
+      )}
     </main>
   );
 }

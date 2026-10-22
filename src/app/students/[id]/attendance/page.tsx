@@ -2,14 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { StudentHeader } from "@/components/student-header";
+import { card, heading, Tile } from "@/components/ui";
 
+type Status = "PRESENT" | "LATE" | "ABSENT" | "EXCUSED";
 type Data = {
   summary: { present: number; late: number; absent: number; excused: number; rate: number | null };
-  recent: { date: string; status: "PRESENT" | "LATE" | "ABSENT" | "EXCUSED" }[];
+  recent: { date: string; status: Status }[];
 };
 
-const LABEL = { PRESENT: "Present", LATE: "Late", ABSENT: "Absent", EXCUSED: "Excused" } as const;
-const TONE = { PRESENT: "text-emerald-700", LATE: "text-amber-700", ABSENT: "text-rose-700", EXCUSED: "text-slate-600" } as const;
+const LABEL: Record<Status, string> = { PRESENT: "Present", LATE: "Late", ABSENT: "Absent", EXCUSED: "Excused" };
+const PILL: Record<Status, string> = {
+  PRESENT: "bg-[#DCF2E4] text-[#166534]", LATE: "bg-[#FDE7D3] text-[#9A3412]",
+  ABSENT: "bg-[#F9E0E0] text-[#991B1B]", EXCUSED: "bg-slate-200 text-slate-700",
+};
+const BAR: Record<Status, string> = { PRESENT: "bg-[#0E8A4F]", LATE: "bg-[#F59E0B]", ABSENT: "bg-[#BE123C]", EXCUSED: "bg-slate-400" };
 
 export default function StudentAttendance() {
   const { id } = useParams<{ id: string }>();
@@ -25,40 +32,67 @@ export default function StudentAttendance() {
     });
   }, [id, router]);
 
-  if (error) return <main className="p-8 text-slate-700">{error}</main>;
-  if (!data) return <main className="p-8 text-slate-600">Loading attendance…</main>;
+  const s = data?.summary;
+  const counts: [Status, number][] = s ? [["PRESENT", s.present], ["LATE", s.late], ["ABSENT", s.absent], ["EXCUSED", s.excused]] : [];
+  const total = counts.reduce((n, [, v]) => n + v, 0);
 
-  const s = data.summary;
   return (
-    <main className="min-h-screen bg-stone-50 text-slate-900">
-      <div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
-        <div className="flex items-baseline justify-between text-sm text-slate-500">
-          <p>Attendance · Student {id}</p>
-          <a href={`/students/${id}/fees`} className="underline">Fees</a>
-        </div>
-        <h1 className="mt-1 text-5xl font-bold tracking-tight sm:text-6xl">{s.rate === null ? "No records yet" : `${s.rate}%`}</h1>
-        {s.rate !== null && <p className="mt-1 text-slate-600">attendance rate (excused days not counted, late counts as attended)</p>}
+    <main className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
+      <StudentHeader id={id} active="attendance" />
 
-        <dl className="mt-6 grid grid-cols-4 gap-3 text-center">
-          {([["Present", s.present], ["Late", s.late], ["Absent", s.absent], ["Excused", s.excused]] as const).map(([k, v]) => (
-            <div key={k} className="rounded-lg border border-slate-200 bg-white py-3">
-              <dd className="text-2xl font-semibold">{v}</dd>
-              <dt className="text-sm text-slate-600">{k}</dt>
+      {error ? (
+        <p className="text-slate-700">{error}</p>
+      ) : !data || !s ? (
+        <p className="text-slate-600">Loading attendance…</p>
+      ) : (
+        <>
+          <section aria-label="Attendance totals" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="sm:col-span-2 xl:col-span-1">
+              <Tile label="Attendance rate" tone="sky" value={s.rate === null ? "No records" : `${s.rate}%`} sub="Excused days aren't counted; late counts as attended" />
             </div>
-          ))}
-        </dl>
+            <Tile label="Present" tone="mint" value={s.present} />
+            <Tile label="Late" tone="amber" value={s.late} />
+            <Tile label="Absent" tone="rose" value={s.absent} />
+            <Tile label="Excused" tone="sand" value={s.excused} />
+          </section>
 
-        <h2 className="mt-10 text-2xl font-semibold">Recent days</h2>
-        <ul className="mt-3 divide-y divide-slate-200 border-y border-slate-200">
-          {data.recent.length === 0 && <li className="py-4 text-slate-600">Your child's teacher hasn't marked attendance yet.</li>}
-          {data.recent.map((r) => (
-            <li key={r.date} className="flex justify-between py-3">
-              <span>{new Date(r.date).toLocaleDateString("en-KE", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}</span>
-              <span className={TONE[r.status]}>{LABEL[r.status]}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            <section className={`${card} lg:col-span-2`}>
+              <h2 className={heading}>Recent days</h2>
+              <ul className="mt-3 divide-y divide-slate-200">
+                {data.recent.length === 0 && <li className="py-4 text-slate-600">The class teacher hasn't marked attendance yet.</li>}
+                {data.recent.map((r) => (
+                  <li key={r.date} className="flex items-center justify-between py-3">
+                    <span>{new Date(r.date).toLocaleDateString("en-KE", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}</span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${PILL[r.status]}`}>{LABEL[r.status]}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className={card}>
+              <h2 className={heading}>All recorded days</h2>
+              {total === 0 ? (
+                <p className="mt-3 text-slate-600">Nothing to show yet.</p>
+              ) : (
+                <>
+                  <div className="mt-4 flex h-4 overflow-hidden rounded-full bg-slate-200" role="img" aria-label={counts.map(([k, v]) => `${v} ${LABEL[k].toLowerCase()}`).join(", ")}>
+                    {counts.filter(([, v]) => v > 0).map(([k, v]) => <div key={k} className={BAR[k]} style={{ width: `${(v / total) * 100}%` }} />)}
+                  </div>
+                  <ul className="mt-4 space-y-2 text-sm">
+                    {counts.map(([k, v]) => (
+                      <li key={k} className="flex items-center justify-between">
+                        <span className="flex items-center gap-2"><span className={`size-3 rounded-full ${BAR[k]}`} />{LABEL[k]}</span>
+                        <span className="font-semibold">{v} <span className="font-normal text-slate-500">({Math.round((v / total) * 100)}%)</span></span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </section>
+          </div>
+        </>
+      )}
     </main>
   );
 }

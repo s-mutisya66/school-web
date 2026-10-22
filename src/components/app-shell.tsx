@@ -67,8 +67,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className={`${body.className} ${display.variable} min-h-screen bg-[#F4F1EF] text-slate-900`}>
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-[#2A0800] px-4 text-white shadow-md">
+    <div className={`${body.className} ${display.variable} min-h-screen bg-[#F4F1EF] text-slate-900 print:bg-white`}>
+      <header className="sticky top-0 z-30 flex h-16 print:hidden items-center gap-3 bg-[#2A0800] px-4 text-white shadow-md">
         <button onClick={() => setOpen(true)} aria-label="Open menu" className="grid size-10 place-items-center rounded-lg hover:bg-white/10 lg:hidden">
           <Menu size={22} />
         </button>
@@ -101,7 +101,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       <div className="flex">
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 overflow-y-auto border-r border-black/5 bg-white p-3 lg:block">{nav}</aside>
+        <aside className="sticky top-16 hidden print:!hidden h-[calc(100vh-4rem)] w-60 shrink-0 overflow-y-auto border-r border-black/5 bg-white p-3 lg:block">{nav}</aside>
 
         {open && (
           <div className="fixed inset-0 z-40 lg:hidden">

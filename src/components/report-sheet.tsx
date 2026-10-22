@@ -21,7 +21,7 @@ export function ReportSheet({ report, termLabel }: { report: Report; termLabel: 
 
   return (
     <article className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm print:rounded-none print:border-slate-500 print:shadow-none">
-      <header className="bg-slate-900 px-6 py-5 text-white print:border-b-2 print:border-slate-900 print:bg-white print:text-slate-900">
+      <header className="bg-[#2A0800] px-6 py-5 text-white print:border-b-2 print:border-slate-900 print:bg-white print:text-slate-900">
         <h1 className="text-3xl font-bold tracking-tight">{student.name}</h1>
         <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1 text-sm">
           <div className="flex gap-2"><dt className="text-slate-300 print:text-slate-600">Class</dt><dd className="font-medium">{student.className}</dd></div>

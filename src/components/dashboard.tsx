@@ -1,5 +1,8 @@
 import { Banknote, CalendarCheck, ClipboardList, GraduationCap, School, User, Users } from "lucide-react";
 import { ProgressChart } from "./progress-chart";
+import { kes, money } from "@/lib/format";
+
+export { kes, money };
 
 // Brand colours: header #2A0800, accent burnt orange, amber highlight.
 const CHART_COLORS = ["#2A0800", "#C2410C", "#F59E0B", "#0F766E", "#7C3AED"];
@@ -7,9 +10,6 @@ const TONES = { sand: "bg-[#FBE9D9]", sky: "bg-[#DDEBF8]", mint: "bg-[#DCF2E4]",
 const card = "rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5";
 const heading = "font-[family-name:var(--font-display)] text-lg font-bold";
 
-export const money = (n: number) => `KES ${n >= 1e6 ? `${+(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${+(n / 1e3).toFixed(1)}K` : n}`;
-/** Exact amount, for payments and balances. */
-export const kes = (n: number) => `KES ${n.toLocaleString("en-KE")}`;
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join("");
 const sexLetter = (g: string) => (g ? ` (${g})` : "");
 
