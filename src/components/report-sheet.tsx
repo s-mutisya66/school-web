@@ -84,7 +84,7 @@ export function ReportSheet({ report, termLabel }: { report: Report; termLabel: 
               </tr>
               <tr className="border-t border-slate-300 border-b-2 border-b-slate-800 bg-slate-50 print:bg-white">
                 <th scope="row" className="px-3 py-3 font-bold">
-                  Overall position <span className="block text-xs font-normal text-slate-500">{student.form}, all streams</span>
+                  Overall position <span className="block text-xs font-normal text-slate-500">{student.form}</span>
                 </th>
                 {exams.map((e) => (
                   <td key={e.id} className={cell}>

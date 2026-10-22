@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         const Icon = l.icon;
         return (
           <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined}
-                className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-[15px] transition-colors ${active ? "bg-[#C2410C]/10 font-semibold text-[#9A3412] shadow-[inset_3px_0_0_#C2410C]" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
+                className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-[15px] transition-colors ${active ? "bg-[#0db2d3]/10 font-semibold text-[#173a8b] shadow-[inset_3px_0_0_#0db2d3]" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
             <Icon size={19} aria-hidden="true" /> {l.label}
           </Link>
         );
@@ -68,12 +68,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={`${body.className} ${display.variable} min-h-screen bg-[#F4F1EF] text-slate-900 print:bg-white`}>
-      <header className="sticky top-0 z-30 flex h-16 print:hidden items-center gap-3 bg-[#2A0800] px-4 text-white shadow-md">
+      <header className="sticky top-0 z-30 flex h-16 print:hidden items-center gap-3 bg-[#105ac9] px-4 text-white shadow-md">
         <button onClick={() => setOpen(true)} aria-label="Open menu" className="grid size-10 place-items-center rounded-lg hover:bg-white/10 lg:hidden">
           <Menu size={22} />
         </button>
         <Link href="/admin" className="flex items-center gap-2.5">
-          <span className="grid size-9 place-items-center rounded-lg bg-[#C2410C] font-[family-name:var(--font-display)] text-lg font-bold">S</span>
+          <span className="grid size-9 place-items-center rounded-lg bg-[#0db2d3] font-[family-name:var(--font-display)] text-lg font-bold">S</span>
           <span className="hidden whitespace-nowrap font-[family-name:var(--font-display)] text-lg font-bold sm:inline">{BRAND}</span>
         </Link>
 
@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="ml-auto flex items-center gap-3">
           {me && (
             <div className="flex items-center gap-2.5">
-              <span className="grid size-9 place-items-center rounded-full bg-[#F59E0B] text-sm font-bold text-[#2A0800]" aria-hidden="true">{initials(me.name)}</span>
+              <span className="grid size-9 place-items-center rounded-full bg-[#F59E0B] text-sm font-bold text-[#105ac9]" aria-hidden="true">{initials(me.name)}</span>
               <span className="hidden leading-tight sm:block">
                 <span className="block text-sm font-semibold">{me.name}</span>
                 <span className="block text-xs capitalize text-white/70">{me.role.toLowerCase()}</span>

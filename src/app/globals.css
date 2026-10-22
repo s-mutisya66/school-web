@@ -1,10 +1,9 @@
 @import "tailwindcss";
 
-/* Brand colours: change them here and the whole app follows. */
 @theme {
-  --color-brand: #2A0800;        /* header, primary buttons, big numbers */
-  --color-accent: #C2410C;       /* active menu item, highlights */
-  --color-accent-dark: #9A3412;  /* text on accent tints */
+  --color-brand: #105ac9;        /* header, primary buttons, big numbers */
+  --color-accent: #0db2d3;       /* active menu item, highlights */
+  --color-accent-dark: #173a8b;  /* text on accent tints */
   --color-canvas: #F3ECE7;       /* page background behind the white cards */
 }
 
