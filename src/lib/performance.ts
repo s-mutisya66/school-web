@@ -8,13 +8,6 @@ const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const r1 = (n: number) => Math.round(n * 10) / 10;
 const sex = (g: "MALE" | "FEMALE" | null) => (g === "MALE" ? "M" : g === "FEMALE" ? "F" : "");
 
-/**
- * Performance for one term, one exam at a time. Exams are never averaged together: each exam has its
- * own scores, averages, grades and positions. A student's average in an exam is the mean of their subject
- * percentages in it, and the grade comes straight from that average. "Form" means the class name
- * (Form 1, Form 2, ...), so every stream of a form is ranked together.
- * The trend for every exam in the term is returned too, for the progress chart.
- */
 export async function buildPerformance(termId: number, wantedExamId?: number) {
   const exams = sortExams(await db.exam.findMany({ where: { termId }, select: { id: true, name: true, outOf: true } }));
   if (exams.length === 0) return { exams: [], examId: null as number | null, forms: [] };

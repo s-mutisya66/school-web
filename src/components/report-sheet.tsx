@@ -96,7 +96,6 @@ export function ReportSheet({ report, termLabel }: { report: Report; termLabel: 
           </table>
 
           <p className="mt-4 text-sm text-slate-500">
-            Each exam is shown on its own and exams are not averaged together. Positions follow the average, and ties share a position.
             Class average and {student.form} average: {sat.map((e) => `${e.name} ${e.classMean}% and ${e.formMean}%`).join("; ")}.
           </p>
           <p className="mt-1 text-sm text-slate-500">Grades: {report.gradeScale}.</p>

@@ -4,8 +4,7 @@ import { kes, money } from "@/lib/format";
 
 export { kes, money };
 
-// Brand colours: header #2A0800, accent burnt orange, amber highlight.
-const CHART_COLORS = ["#2A0800", "#C2410C", "#F59E0B", "#0F766E", "#7C3AED"];
+const CHART_COLORS = ["#105ac9", "#000000", "#F59E0B", "#0F766E", "#7C3AED"];
 const TONES = { sand: "bg-[#FBE9D9]", sky: "bg-[#DDEBF8]", mint: "bg-[#DCF2E4]", rose: "bg-[#F9E0E0]" } as const;
 const card = "rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5";
 const heading = "font-[family-name:var(--font-display)] text-lg font-bold";
@@ -31,7 +30,7 @@ function StatCard({ label, value, sub, tone, icon: Icon }: { label: string; valu
           <p className="text-sm text-slate-700">{label}</p>
           <p className="mt-2 text-3xl font-bold tracking-tight">{value}</p>
         </div>
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/70 text-[#2A0800]"><Icon size={22} aria-hidden={true} /></span>
+        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/70 text-[#105ac9]"><Icon size={22} aria-hidden={true} /></span>
       </div>
       {sub && <p className="mt-2 text-sm text-slate-600">{sub}</p>}
     </div>
@@ -52,7 +51,7 @@ function Donut({ parts, total }: { parts: { label: string; value: number; color:
           return el;
         })}
         <text x="70" y="66" textAnchor="middle" fontSize="11" fill="#64748B">Total</text>
-        <text x="70" y="86" textAnchor="middle" fontSize="22" fontWeight="700" fill="#2A0800">{total}</text>
+        <text x="70" y="86" textAnchor="middle" fontSize="22" fontWeight="700" fill="#105ac9">{total}</text>
       </svg>
       <ul className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm">
         {parts.map((p) => (
@@ -104,7 +103,7 @@ export function AdminDashboard({ data }: { data: AdminData }) {
           <h2 className={heading}>Students</h2>
           <p className="mb-4 text-sm text-slate-600">Boys and girls on the roll.</p>
           <Donut total={stats.students} parts={[
-            { label: "Male", value: gender.male, color: "#2A0800" },
+            { label: "Male", value: gender.male, color: "#105ac9" },
             { label: "Female", value: gender.female, color: "#F59E0B" },
             ...(gender.unknown > 0 ? [{ label: "Not recorded", value: gender.unknown, color: "#CBD5E1" }] : []),
           ]} />
@@ -206,7 +205,7 @@ export function TeacherDashboard({ data }: { data: TeacherData }) {
                 </div>
                 <p className="mt-3 text-sm"><span className="text-slate-500">Marks you can enter:</span> {c.subjects}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <a href="/admin/attendance" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#2A0800] px-4 text-sm font-semibold text-white hover:bg-[#431407]"><CalendarCheck size={16} aria-hidden="true" />Take attendance</a>
+                  <a href="/admin/attendance" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#105ac9] px-4 text-sm font-semibold text-white hover:bg-[#431407]"><CalendarCheck size={16} aria-hidden="true" />Take attendance</a>
                   <a href="/admin/marks" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-4 text-sm font-semibold hover:bg-slate-50"><ClipboardList size={16} aria-hidden="true" />Enter marks</a>
                 </div>
               </article>
