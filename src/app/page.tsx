@@ -1,15 +1,21 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
+import { Check, CalendarCheck, ClipboardList, FileSpreadsheet, TrendingUp, Users, Wallet } from "lucide-react";
 import { DemoLogin } from "@/components/demo-login";
+import { HeroPreview } from "@/components/hero-preview";
 
-const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "700", "800"] });
+const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display" });
 const body = Figtree({ subsets: ["latin"] });
 
-// Edit these three.
-const NAME = "School Management System";
+// Edit these.
+const NAME = "School Management";
 const AUTHOR = "Sidney";
-const CONTACT_HREF = ""; 
+const CONTACT_HREF = ""; // e.g. a link to your profile page. The link only shows when this is set.
+
+// The page colours. Change them here and the whole page follows.
+const BRAND = { "--brand": "#105AC9", "--brand-deep": "#0B3F8F", "--brand-night": "#082A66", "--accent": "#0DB2D3" } as CSSProperties;
 
 export const metadata: Metadata = {
   title: `${NAME} (live demo)`,
@@ -21,20 +27,22 @@ export const metadata: Metadata = {
   },
 };
 
-const ink = "text-[#14213D]";
-
-const terms = [
-  { name: "Term 1", state: "Paid", paid: 28000, due: 28000 },
-  { name: "Term 2", state: "Part paid", paid: 10000, due: 28000 },
-  { name: "Term 3", state: "Unpaid", paid: 0, due: 28000 },
-];
-const kes = (n: number) => `KES ${n.toLocaleString("en-KE")}`;
+const heading = "font-[family-name:var(--font-display)] font-bold tracking-tight";
 
 const steps = [
   ["The school sets the fees", "An admin enters the fee items for each class, then creates every student's invoice for the term in one click."],
-  ["Parents pay by M-Pesa", "A parent enters their number, confirms on their phone, and the balance updates as soon as the payment is confirmed. Older terms are cleared first."],
-  ["Teachers keep the records", "Daily registers marked present, late, absent or excused, and exam marks entered class by class."],
-  ["Report cards write themselves", "Grades, class averages and class position are worked out from the marks. Parents see only their own children."],
+  ["Parents pay by M-Pesa", "A parent enters their number, confirms on their phone, and the balance updates as soon as the payment is confirmed."],
+  ["Teachers keep the records", "Daily registers and exam marks, class by class and subject by subject, entered only by the teachers responsible."],
+  ["Report cards write themselves", "Grades, class position and overall position for every exam, ready to view, print or save as a PDF."],
+];
+
+const features = [
+  { icon: Wallet, tone: "bg-[#FBE8D8]", title: "Termly fees and M-Pesa", text: "Itemised fees per class, one invoice per student each term, and payments that clear the oldest term first." },
+  { icon: CalendarCheck, tone: "bg-[#DCEBF8]", title: "Attendance registers", text: "Present, late, absent or excused for every class every day, with a clear attendance rate for parents." },
+  { icon: ClipboardList, tone: "bg-[#F9E0DF]", title: "Marks and report cards", text: "Each exam on its own, graded on the KCSE scale, with positions in class and across the whole form." },
+  { icon: TrendingUp, tone: "bg-[#DCF2E4]", title: "Performance and rankings", text: "Class rankings, the best student in every subject, progress charts, and a PDF sheet for each form." },
+  { icon: Users, tone: "bg-[#FDE7D3]", title: "Roles that are enforced", text: "Admins, teachers and parents each see only what they should. Teachers reach only their own classes and subjects." },
+  { icon: FileSpreadsheet, tone: "bg-[#E5F7FA]", title: "Bulk import", text: "Upload a spreadsheet of students and their parents get logins automatically, with a sheet to hand out." },
 ];
 
 const notes = [
@@ -44,106 +52,133 @@ const notes = [
   ["Stack", "Next.js, TypeScript, Prisma and PostgreSQL (Neon), hosted on Vercel."],
 ];
 
+const PARENT = { email: "parent@school.test", password: "parent123" };
+const TEACHER = { email: "teacher@school.test", password: "teacher123" };
+
 export default function Home() {
   return (
-    <main className={`${body.className} min-h-screen bg-[#F6F8FB] ${ink}`}>
-      <style>{`
-        @media (prefers-reduced-motion: no-preference) {
-          .fill { transform-origin: left; animation: fill 1.1s cubic-bezier(.2,.7,.2,1) .4s both; }
-          @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-        }
-      `}</style>
-
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-        <span className={`${display.className} text-lg font-bold`}>{NAME}</span>
-        <Link href="/login" className="text-sm font-medium underline underline-offset-4 hover:text-[#0E8A4F]">Sign in</Link>
-      </header>
-
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-16 pt-8 lg:grid-cols-[1.05fr_.95fr] lg:pt-16">
-        <div>
-          <p className="inline-block rounded bg-[#F4C542] px-2.5 py-1 text-sm font-semibold">Live demo with made-up data</p>
-          <h1 className={`${display.className} mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl`}>
-            Fees, attendance and report cards for a Kenyan school.
-          </h1>
-          <p className="mt-5 max-w-lg text-lg text-slate-700">
-            Parents pay by M-Pesa and follow their child's progress. Teachers take the register and enter marks. Pick a role and
-            you're inside, with no sign-up.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <DemoLogin email="parent@school.test" password="parent123" label="Open the parent view" tone="solid" />
-            <DemoLogin email="teacher@school.test" password="teacher123" label="Open the teacher view" tone="outline" />
-          </div>
-          <p className="mt-4 max-w-md text-sm text-slate-600">
-            M-Pesa is simulated, so no real money moves. The first click can take a few seconds while the free database wakes up.
-          </p>
-          <details className="mt-3 text-sm text-slate-600">
-            <summary className="cursor-pointer underline underline-offset-4">Prefer to type the details?</summary>
-            <p className="mt-2 font-mono">parent@school.test / parent123<br />teacher@school.test / teacher123</p>
-          </details>
+    <div style={BRAND} className={`${body.className} ${display.variable} scroll-smooth bg-[#F8FAFD] text-slate-900`}>
+      <div className="relative overflow-hidden bg-[linear-gradient(135deg,var(--brand-deep)_0%,var(--brand)_62%,#1F7AE8_100%)] text-white">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div className="absolute -right-44 -top-48 size-[36rem] rounded-full bg-white/[0.06]" />
+          <div className="absolute -bottom-40 -left-32 size-[26rem] rounded-full bg-[var(--accent)]/15" />
         </div>
 
-        {/* A faithful sketch of the parent's fee statement, drawn in an exercise-book style. */}
-        <figure>
-          <div
-            aria-hidden="true"
-            className="relative rounded-lg border border-slate-300 bg-white py-6 pl-16 pr-6 shadow-sm before:absolute before:inset-y-0 before:left-11 before:w-px before:bg-rose-400"
-          >
-            <p className="text-sm text-slate-500">Amani Otieno, Form 2 North</p>
-            <p className={`${display.className} mt-1 text-4xl font-bold`}>KES 46,000</p>
-            <p className="text-sm text-slate-600">still to pay this year</p>
-            <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-200">
-              <div className="fill h-full bg-[#0E8A4F]" style={{ width: "45%" }} />
+        <header className="relative mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className={`${heading} flex size-9 items-center justify-center rounded-lg bg-[var(--accent)] text-lg text-white`}>S</span>
+            <span className={`${heading} whitespace-nowrap text-lg`}>{NAME}</span>
+          </Link>
+          <nav aria-label="Page sections" className="hidden items-center gap-8 whitespace-nowrap text-sm text-white/85 md:flex">
+            <a href="#how" className="hover:text-white">How it works</a>
+            <a href="#features" className="hover:text-white">Features</a>
+            <a href="#tech" className="hover:text-white">Under the hood</a>
+          </nav>
+          <Link href="/login" className="rounded-lg border border-white/40 px-4 py-2 text-sm font-semibold hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Sign in</Link>
+        </header>
+
+        <section className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 pb-20 pt-10 lg:grid-cols-[1.05fr_1fr] lg:pb-28 lg:pt-16">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-medium ring-1 ring-white/25">
+              <span className="size-2 rounded-full bg-[#F49D0B]" aria-hidden="true" />
+              Live demo with made-up data
+            </p>
+            <h1 className={`${heading} mt-6 text-4xl font-extrabold leading-[1.04] sm:text-5xl lg:text-[3.6rem]`}>
+              Fees, attendance and report cards for a <span className="text-[#8EE3F2]">Kenyan school.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
+              Parents pay by M-Pesa and follow their child's progress. Teachers take the register and enter marks. Pick a role and you're inside, with no sign-up.
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <DemoLogin {...PARENT} label="Open the parent view" tone="light" />
+              <DemoLogin {...TEACHER} label="Open the teacher view" tone="lightOutline" />
             </div>
-            <ul className="mt-5 border-t border-sky-200">
-              {terms.map((t) => (
-                <li key={t.name} className="flex items-baseline justify-between border-b border-sky-200 py-3">
-                  <span className="font-medium">{t.name}</span>
-                  <span className="text-sm text-slate-600">
-                    {kes(t.paid)} of {kes(t.due)}
-                    <span className={`ml-3 font-semibold ${t.state === "Paid" ? "text-emerald-700" : t.state === "Unpaid" ? "text-rose-700" : "text-amber-700"}`}>{t.state}</span>
-                  </span>
-                </li>
+            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/85">
+              {["Simulated M-Pesa, no real money", "Roles enforced on the server", "Report cards as PDF"].map((t) => (
+                <li key={t} className="flex items-center gap-2"><Check size={16} aria-hidden="true" className="text-[#8EE3F2]" />{t}</li>
               ))}
             </ul>
-            <div className="mt-5 rounded-md bg-[#0E8A4F] py-2.5 text-center font-semibold text-white">Pay with M-Pesa</div>
+            <p className="mt-5 max-w-md text-sm text-white/70">The first click can take a few seconds while the free database wakes up.</p>
+            <details className="mt-2 text-sm text-white/80">
+              <summary className="cursor-pointer underline underline-offset-4">Prefer to type the details?</summary>
+              <p className="mt-2 font-mono text-white/90">{PARENT.email} / {PARENT.password}<br />{TEACHER.email} / {TEACHER.password}</p>
+            </details>
           </div>
-          <figcaption className="mt-3 text-sm text-slate-500">What a parent sees. Sample data.</figcaption>
-        </figure>
-      </section>
+          <HeroPreview />
+        </section>
+      </div>
 
-      <section className="bg-white">
-        <div className="mx-auto max-w-6xl px-5 py-16">
-          <h2 className={`${display.className} text-3xl font-bold tracking-tight`}>How a term runs</h2>
-          <ol className="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <section id="how" className="scroll-mt-4 bg-white">
+        <div className="mx-auto max-w-6xl px-5 py-20">
+          <h2 className={`${heading} text-3xl sm:text-4xl`}>How a term runs</h2>
+          <p className="mt-3 max-w-xl text-slate-600">From the first invoice to the final report card, in four steps.</p>
+          <ol className="mt-12 grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {steps.map(([title, text], i) => (
-              <li key={title} className="border-t-4 border-[#14213D] pt-4">
-                <span className="text-sm font-semibold text-slate-500">Step {i + 1}</span>
-                <h3 className={`${display.className} mt-1 text-xl font-semibold`}>{title}</h3>
-                <p className="mt-2 text-slate-600">{text}</p>
+              <li key={title} className="relative">
+                <span className="flex items-center gap-3">
+                  <span className={`${heading} flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--brand)] text-lg text-white`}>{i + 1}</span>
+                  {i < steps.length - 1 && <span aria-hidden="true" className="hidden h-px flex-1 bg-slate-200 lg:block" />}
+                </span>
+                <h3 className={`${heading} mt-5 text-xl`}>{title}</h3>
+                <p className="mt-2 leading-relaxed text-slate-600">{text}</p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        <h2 className={`${display.className} text-3xl font-bold tracking-tight`}>Built to hold up</h2>
-        <dl className="mt-6 max-w-3xl divide-y divide-slate-300 border-y border-slate-300">
-          {notes.map(([k, v]) => (
-            <div key={k} className="py-4 sm:grid sm:grid-cols-[8rem_1fr] sm:gap-6">
-              <dt className="font-semibold">{k}</dt>
-              <dd className="mt-1 text-slate-700 sm:mt-0">{v}</dd>
-            </div>
-          ))}
-        </dl>
+      <section id="features" className="scroll-mt-4 bg-[#F3F1EF]">
+        <div className="mx-auto max-w-6xl px-5 py-20">
+          <h2 className={`${heading} text-3xl sm:text-4xl`}>Everything the school office needs</h2>
+          <p className="mt-3 max-w-xl text-slate-600">Built around how Kenyan schools actually run: termly fees, M-Pesa, streams and forms.</p>
+          <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map(({ icon: Icon, tone, title, text }) => (
+              <div key={title}>
+                <span className={`flex size-12 items-center justify-center rounded-xl ${tone} text-[var(--brand)]`}><Icon size={24} aria-hidden="true" /></span>
+                <h3 className={`${heading} mt-5 text-xl`}>{title}</h3>
+                <p className="mt-2 leading-relaxed text-slate-600">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      <footer className="border-t border-slate-300">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 text-sm text-slate-600">
-          <p>A portfolio project by {AUTHOR}. Consider every name and amount as dummy data.</p>
-          {CONTACT_HREF && <a href={CONTACT_HREF} className="font-medium underline underline-offset-4">Work with me</a>}
+      <section id="tech" className="scroll-mt-4 bg-[var(--brand-night)] text-white">
+        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-20 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <h2 className={`${heading} text-3xl sm:text-4xl`}>Built to hold up</h2>
+            <p className="mt-4 max-w-sm leading-relaxed text-white/75">The details that matter when real money and real children's records are involved.</p>
+          </div>
+          <dl className="divide-y divide-white/15 border-y border-white/15">
+            {notes.map(([k, v]) => (
+              <div key={k} className="py-5 sm:grid sm:grid-cols-[8rem_1fr] sm:gap-6">
+                <dt className={`${heading} text-lg text-[#8EE3F2]`}>{k}</dt>
+                <dd className="mt-1 leading-relaxed text-white/80 sm:mt-0">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="border-t border-white/15">
+          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 py-14 md:flex-row md:items-center">
+            <div>
+              <h2 className={`${heading} text-2xl sm:text-3xl`}>See it for yourself</h2>
+              <p className="mt-2 text-white/75">No sign-up. Pick a role and look around.</p>
+            </div>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <DemoLogin {...PARENT} label="Open the parent view" tone="light" />
+              <DemoLogin {...TEACHER} label="Open the teacher view" tone="lightOutline" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="bg-[var(--brand-night)] text-sm text-white/65">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-white/15 px-5 py-6">
+          <p>A portfolio project by {AUTHOR}. Every name and amount is fictional.</p>
+          {CONTACT_HREF && <a href={CONTACT_HREF} className="font-medium text-white underline underline-offset-4">Work with me</a>}
         </div>
       </footer>
-    </main>
+    </div>
   );
 }

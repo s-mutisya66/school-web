@@ -3,7 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Props = { email: string; password: string; label: string; tone: "solid" | "outline" };
+type Tone = "solid" | "outline" | "light" | "lightOutline";
+type Props = { email: string; password: string; label: string; tone: Tone };
+
+// The colours come from CSS variables set on the page (--brand, --brand-deep), so restyling is one edit.
+const TONES: Record<Tone, string> = {
+  solid: "bg-[var(--brand)] text-white hover:bg-[var(--brand-deep)] focus-visible:outline-[var(--brand)]",
+  outline: "border-2 border-[var(--brand)] text-[var(--brand)] hover:bg-[var(--brand)] hover:text-white focus-visible:outline-[var(--brand)]",
+  light: "bg-white text-[var(--brand)] shadow-lg shadow-black/10 hover:bg-sky-50 focus-visible:outline-white",
+  lightOutline: "border-2 border-white/60 text-white hover:bg-white/10 focus-visible:outline-white",
+};
 
 /** One-click sign-in for the public demo accounts. */
 export function DemoLogin({ email, password, label, tone }: Props) {
@@ -32,15 +41,11 @@ export function DemoLogin({ email, password, label, tone }: Props) {
       <button
         onClick={go}
         disabled={busy}
-        className={`min-h-12 w-full rounded-md px-5 py-3 font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0E8A4F] disabled:opacity-60 sm:w-auto ${
-          tone === "solid"
-            ? "bg-[#0E8A4F] text-white hover:bg-[#0B7541]"
-            : "border-2 border-[#14213D] text-[#14213D] hover:bg-[#14213D] hover:text-white"
-        }`}
+        className={`min-h-12 w-full rounded-lg px-6 py-3 font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60 sm:w-auto ${TONES[tone]}`}
       >
         {busy ? "Opening the demo…" : label}
       </button>
-      {error && <p role="alert" className="mt-2 text-sm text-rose-700">{error}</p>}
+      {error && <p role="alert" className={`mt-2 text-sm ${tone.startsWith("light") ? "text-rose-100" : "text-rose-700"}`}>{error}</p>}
     </div>
   );
 }

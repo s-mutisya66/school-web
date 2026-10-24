@@ -17,7 +17,7 @@ function Texture({ id, color, kind }: { id: string; color: string; kind: number 
 }
 
 /** A grouped bar chart: one group of bars per exam, one bar per series (the form first, then its streams). Plain SVG. */
-export function ProgressChart({ labels, series, colors }: { labels: string[]; series: Series[]; colors?: string[] }) {
+export function ProgressChart({ labels, series, colors, legend = true }: { labels: string[]; series: Series[]; colors?: string[]; legend?: boolean }) {
   const palette = colors ?? COLORS;
   const W = 640, H = 300, L = 42, R = 14, T = 24, Bt = 44;
   const all = series.flatMap((s) => s.values).filter((v): v is number => v !== null);
@@ -77,7 +77,7 @@ export function ProgressChart({ labels, series, colors }: { labels: string[]; se
         })}
       </svg>
 
-      <figcaption className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+      <figcaption className={legend ? "mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm" : "hidden"}>
         {series.map((s, k) => (
           <span key={s.name} className="flex items-center gap-2 whitespace-nowrap">
             <svg width="16" height="16" aria-hidden="true">
