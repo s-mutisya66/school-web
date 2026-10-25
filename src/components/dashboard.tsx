@@ -4,8 +4,8 @@ import { kes, money } from "@/lib/format";
 
 export { kes, money };
 
-const CHART_COLORS = ["#105ac9", "#000000", "#F59E0B", "#0F766E", "#7C3AED"];
-const TONES = { sand: "bg-[#FBE9D9]", sky: "bg-[#DDEBF8]", mint: "bg-[#DCF2E4]", rose: "bg-[#F9E0E0]" } as const;
+const CHART_COLORS = ["#105ac9", "#000000", "#F59E0B", "#0f761b", "#7C3AED"];
+const TONES = { sand: "bg-[#e1d1ef]", sky: "bg-[#f5f0ca]", mint: "bg-[#ddf9e7]", rose: "bg-[#fadddd]" } as const;
 const card = "rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5";
 const heading = "font-[family-name:var(--font-display)] text-lg font-bold";
 
@@ -80,8 +80,8 @@ export function AdminDashboard({ data }: { data: AdminData }) {
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight">Admin Dashboard</h1>
         <p className="text-slate-600">Welcome back, {first}.{data.termLabel && ` Showing ${data.termLabel}.`}</p>
       </div>
-
-      <section aria-label="Totals" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  
+        <section aria-label="Totals" className="theme-fixed grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Students" value={stats.students.toLocaleString("en-KE")} tone="sand" icon={GraduationCap} />
         <StatCard label="Teachers" value={stats.teachers.toLocaleString("en-KE")} tone="sky" icon={User} />
         <StatCard label="Parents" value={stats.parents.toLocaleString("en-KE")} tone="rose" icon={Users} />
