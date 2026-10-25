@@ -9,12 +9,10 @@ import { HeroPreview } from "@/components/hero-preview";
 const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display" });
 const body = Figtree({ subsets: ["latin"] });
 
-// Edit these.
 const NAME = "School Management";
-const AUTHOR = "Sidney";
-const CONTACT_HREF = ""; // e.g. a link to your profile page. The link only shows when this is set.
+const AUTHOR = "Sidney Mutisya";
+const CONTACT_HREF = "";
 
-// The page colours. Change them here and the whole page follows.
 const BRAND = { "--brand": "#105AC9", "--brand-deep": "#0B3F8F", "--brand-night": "#082A66", "--accent": "#0DB2D3" } as CSSProperties;
 
 export const metadata: Metadata = {
@@ -81,7 +79,7 @@ export default function Home() {
           <div>
             <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-medium ring-1 ring-white/25">
               <span className="size-2 rounded-full bg-[#F49D0B]" aria-hidden="true" />
-              Live demo with made-up data
+              Live demo with dummy data
             </p>
             <h1 className={`${heading} mt-6 text-4xl font-extrabold leading-[1.04] sm:text-5xl lg:text-[3.6rem]`}>
               Fees, attendance and report cards for a <span className="text-[#8EE3F2]">Kenyan school.</span>
