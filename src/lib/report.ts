@@ -13,6 +13,8 @@ export async function buildReport(studentId: number, termId: number) {
   const student = await db.student.findUniqueOrThrow({ where: { id: studentId }, include: { schoolClass: true } });
   const exams = sortExams(await db.exam.findMany({ where: { termId } }));
   const form = student.schoolClass.name;
+  const term = await db.term.findUnique({ where: { id: termId } });
+  const nextTerm = term ? await db.term.findFirst({ where: { startsOn: { gt: term.startsOn } }, orderBy: { startsOn: "asc" } }) : null;
 
   // Marks for the whole form, so positions can be worked out against every stream.
   const marks = await db.mark.findMany({
@@ -73,8 +75,15 @@ export async function buildReport(studentId: number, termId: number) {
   return {
     student: {
       id: student.id, name: `${student.firstName} ${student.lastName}`, admissionNo: student.admissionNo,
+      gender: student.gender === "MALE" ? "Male" : student.gender === "FEMALE" ? "Female" : "",
       form, className: student.schoolClass.stream ? `${form} ${student.schoolClass.stream}` : form,
     },
+    term: term
+      ? {
+          label: `Term ${term.termNumber}, ${term.academicYear}`, year: term.academicYear,
+          closes: term.endsOn.toISOString(), nextOpens: nextTerm ? nextTerm.startsOn.toISOString() : null,
+        }
+      : null,
     exams: perExam,
     subjects,
     gradeScale: GRADE_SCALE,
