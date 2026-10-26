@@ -13,8 +13,8 @@ type Data = {
 
 const LABEL: Record<Status, string> = { PRESENT: "Present", LATE: "Late", ABSENT: "Absent", EXCUSED: "Excused" };
 const PILL: Record<Status, string> = {
-  PRESENT: "bg-[#DCF2E4] text-[#166534]", LATE: "bg-[#FDE7D3] text-[#9A3412]",
-  ABSENT: "bg-[#F9E0E0] text-[#991B1B]", EXCUSED: "bg-slate-200 text-slate-700",
+  PRESENT: "bg-[#bff7d4] text-[#166534]", LATE: "bg-[#ffe1c6] text-[#9A3412]",
+  ABSENT: "bg-[#f9cccc] text-[#991B1B]", EXCUSED: "bg-slate-200 text-slate-700",
 };
 const BAR: Record<Status, string> = { PRESENT: "bg-[#0E8A4F]", LATE: "bg-[#F59E0B]", ABSENT: "bg-[#BE123C]", EXCUSED: "bg-slate-400" };
 
@@ -46,8 +46,8 @@ export default function StudentAttendance() {
         <p className="text-slate-600">Loading attendance…</p>
       ) : (
         <>
-          <section aria-label="Attendance totals" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <div className="sm:col-span-2 xl:col-span-1">
+          <section aria-label="Attendance totals" className="theme-fixed grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="theme-fixed sm:col-span-2 xl:col-span-1">
               <Tile label="Attendance rate" tone="sky" value={s.rate === null ? "No records" : `${s.rate}%`} sub="Excused days aren't counted; late counts as attended" />
             </div>
             <Tile label="Present" tone="mint" value={s.present} />

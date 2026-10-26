@@ -77,7 +77,9 @@ export function AdminDashboard({ data }: { data: AdminData }) {
   return (
     <main className="space-y-6 p-4 sm:p-6">
       <div>
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900">
+  Admin Dashboard
+</h1>
         <p className="text-slate-600">Welcome back, {first}.{data.termLabel && ` Showing ${data.termLabel}.`}</p>
       </div>
   
@@ -176,7 +178,9 @@ export function TeacherDashboard({ data }: { data: TeacherData }) {
   return (
     <main className="space-y-6 p-4 sm:p-6">
       <div>
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight">Teacher Dashboard</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900">
+  Teacher Dashboard
+</h1>
         <p className="text-slate-600">Welcome back, {first}.</p>
       </div>
 
