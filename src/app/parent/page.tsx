@@ -66,7 +66,7 @@ function Home() {
                 <Tile label={c.latest ? `Latest: ${c.latest.exam}` : "Latest result"} tone="bg-[#f9dbc0]">
                   {c.latest ? (
                     <>
-                      <p className="text-2xl font-bold">{c.latest.mean}% <span className="text-[#9A3412]">{c.latest.grade}</span></p>
+                      <p className="text-2xl font-bold">{c.latest.mean}% <span className="text-[#129a93]">{c.latest.grade}</span></p>
                       <p className="mt-1 text-sm text-slate-700">Class {c.latest.classPosition}/{c.latest.classSize}, overall {c.latest.formPosition}/{c.latest.formSize}</p>
                     </>
                   ) : <p className="text-2xl font-bold">None yet</p>}
