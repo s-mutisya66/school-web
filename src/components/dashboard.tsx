@@ -180,7 +180,7 @@ export function TeacherDashboard({ data }: { data: TeacherData }) {
         <p className="text-slate-600">Welcome back, {first}.</p>
       </div>
 
-      <section aria-label="Totals" className="grid gap-4 sm:grid-cols-3">
+      <section aria-label="Totals" className="theme-fixed grid gap-4 sm:grid-cols-3">
         <StatCard label="Your classes" value={String(data.stats.classes)} tone="sand" icon={School} />
         <StatCard label="Students" value={String(data.stats.students)} tone="sky" icon={GraduationCap} />
         <StatCard label="Registers to take today" value={String(data.stats.waiting)} tone={data.stats.waiting ? "rose" : "mint"} icon={CalendarCheck} />

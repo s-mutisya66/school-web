@@ -49,21 +49,21 @@ function Home() {
           {children.map((c) => (
             <article key={c.id} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
               <div className="flex items-center gap-4">
-                <span className="grid size-14 shrink-0 place-items-center rounded-full bg-[#2A0800] text-lg font-bold text-white" aria-hidden="true">{initials(c)}</span>
+                <span className="grid size-14 shrink-0 place-items-center rounded-full bg-[#c97f10] text-lg font-bold text-white" aria-hidden="true">{initials(c)}</span>
                 <div>
                   <h2 className="font-[family-name:var(--font-display)] text-xl font-bold">{c.firstName} {c.lastName}</h2>
                   <p className="text-sm text-slate-600">{c.className}, admission {c.admissionNo}</p>
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <Tile label="Fee balance" tone={c.balance > 0 ? "bg-[#FDE7D3]" : "bg-[#DCF2E4]"}>
+              <div className="theme-fixed mt-5 grid gap-3 sm:grid-cols-3">
+                <Tile label="Fee balance" tone={c.balance > 0 ? "bg-[#fdddbf]" : "bg-[#d1f9df]"}>
                   <p className="text-2xl font-bold">{c.balance > 0 ? kes(c.balance) : "Cleared"}</p>
                 </Tile>
-                <Tile label="Attendance" tone="bg-[#DDEBF8]">
+                <Tile label="Attendance" tone="bg-[#c4dff7]">
                   <p className="text-2xl font-bold">{c.attendanceRate === null ? "No records" : `${c.attendanceRate}%`}</p>
                 </Tile>
-                <Tile label={c.latest ? `Latest: ${c.latest.exam}` : "Latest result"} tone="bg-[#FBE9D9]">
+                <Tile label={c.latest ? `Latest: ${c.latest.exam}` : "Latest result"} tone="bg-[#f9dbc0]">
                   {c.latest ? (
                     <>
                       <p className="text-2xl font-bold">{c.latest.mean}% <span className="text-[#9A3412]">{c.latest.grade}</span></p>
@@ -74,7 +74,7 @@ function Home() {
               </div>
 
               <div className="mt-5 flex flex-wrap gap-2">
-                <a href={`/students/${c.id}/fees`} className="inline-flex min-h-10 items-center rounded-lg bg-[#2A0800] px-4 text-sm font-semibold text-white hover:bg-[#431407]">Fees</a>
+                <a href={`/students/${c.id}/fees`} className="inline-flex min-h-10 items-center rounded-lg bg-[#105ac9] px-4 text-sm font-semibold text-white hover:bg-[#431407]">Fees</a>
                 <a href={`/students/${c.id}/attendance`} className="inline-flex min-h-10 items-center rounded-lg border border-slate-300 px-4 text-sm font-semibold hover:bg-slate-50">Attendance</a>
                 <a href={`/students/${c.id}/report`} className="inline-flex min-h-10 items-center rounded-lg border border-slate-300 px-4 text-sm font-semibold hover:bg-slate-50">Report card</a>
               </div>
