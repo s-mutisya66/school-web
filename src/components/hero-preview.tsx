@@ -15,7 +15,6 @@ const NAV = [
   { label: "Performance", icon: TrendingUp },
 ];
 
-/** A decorative preview of the product: the admin dashboard, with a parent's fee card laid over its corner. */
 export function HeroPreview() {
   return (
     <figure className="relative mx-auto w-full max-w-[34rem] sm:pb-12">
@@ -23,7 +22,7 @@ export function HeroPreview() {
         <div className="flex h-9 items-center gap-3 bg-[var(--brand)] px-3">
           <span className="flex gap-1.5"><i className="size-2.5 rounded-full bg-white/40" /><i className="size-2.5 rounded-full bg-white/40" /><i className="size-2.5 rounded-full bg-white/40" /></span>
           <span className="flex size-5 items-center justify-center rounded bg-[var(--accent)] text-[10px] font-bold text-white">S</span>
-          <span className="text-xs font-semibold text-white">School Management</span>
+          <span className="text-xs font-semibold text-white">The Adan School</span>
         </div>
         <div className="flex">
           <div className="hidden w-32 shrink-0 space-y-1 bg-white p-2 sm:block">

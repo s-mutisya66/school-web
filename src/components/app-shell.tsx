@@ -9,7 +9,7 @@ import { CalendarCheck, ClipboardList, GraduationCap, KeyRound, LayoutDashboard,
 const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display" });
 const body = Figtree({ subsets: ["latin"] });
 
-const BRAND = "School Management";
+const BRAND = "The Adan School";
 type Role = "ADMIN" | "TEACHER" | "PARENT";
 
 const NAV = [
@@ -26,7 +26,6 @@ const NAV = [
 
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join("");
 
-/** The frame around every signed-in staff and parent home page: dark header, sidebar, content. */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();

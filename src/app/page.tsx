@@ -9,7 +9,7 @@ import { HeroPreview } from "@/components/hero-preview";
 const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display" });
 const body = Figtree({ subsets: ["latin"] });
 
-const NAME = "School Management";
+const NAME = "The Adan School ";
 const AUTHOR = "Sidney Mutisya";
 const CONTACT_HREF = "";
 

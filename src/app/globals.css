@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #105ac9;    /* header, primary buttons, big numbers */
-  --color-accent: #0db2d3;   /* active menu item, highlights */
-  --color-accent-dark: #173a8b; /* text on accent tints */
-  --color-canvas: #F3ECE7;   /* page background behind the white cards */
+  --color-brand: #105ac9;
+  --color-accent: #0db2d3;
+  --color-accent-dark: #173a8b;
+  --color-canvas: #F3ECE7;
 }
 
 @theme inline {
@@ -20,7 +20,6 @@
 body {
   background: var(--color-canvas);
   color: #1e293b;
-  /* Tailwind v4 will now pick up --font-sans automatically */
 }
 
 .theme-fixed {

@@ -1,6 +1,5 @@
 type Kind = "chart" | "people" | "calendar" | "document";
 
-// Small line illustrations in the brand blue. Colours are literal so the dark-mode generator can adapt them.
 function Illustration({ kind }: { kind: Kind }) {
   const stroke = { stroke: "#105AC9", strokeWidth: 2.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, fill: "none" };
   return (
@@ -41,7 +40,6 @@ function Illustration({ kind }: { kind: Kind }) {
   );
 }
 
-/** What to show instead of a blank area: a small picture, a plain sentence, and (when there is one) the next step. */
 export function EmptyState({ kind = "document", title, text, action, compact }: {
   kind?: Kind; title: string; text: string; action?: { label: string; href: string }; compact?: boolean;
 }) {
