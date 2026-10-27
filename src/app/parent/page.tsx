@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { kes } from "@/components/dashboard";
+import { PageSkeleton } from "@/components/skeleton";
 
 type Child = {
   id: number; firstName: string; lastName: string; admissionNo: string; className: string;
@@ -74,7 +75,7 @@ function Home() {
               </div>
 
               <div className="mt-5 flex flex-wrap gap-2">
-                <a href={`/students/${c.id}/fees`} className="inline-flex min-h-10 items-center rounded-lg bg-[#105ac9] px-4 text-sm font-semibold text-white hover:bg-[#431407]">Fees</a>
+                <a href={`/students/${c.id}/fees`} className="inline-flex min-h-10 items-center rounded-lg bg-[#105ac9] px-4 text-sm font-semibold text-white hover:bg-[#486ca3]">Fees</a>
                 <a href={`/students/${c.id}/attendance`} className="inline-flex min-h-10 items-center rounded-lg border border-slate-300 px-4 text-sm font-semibold hover:bg-slate-50">Attendance</a>
                 <a href={`/students/${c.id}/report`} className="inline-flex min-h-10 items-center rounded-lg border border-slate-300 px-4 text-sm font-semibold hover:bg-slate-50">Report card</a>
               </div>
