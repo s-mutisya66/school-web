@@ -19,7 +19,6 @@ const HEADER_NAMES: Record<string, string> = {
   email: "email", parentemail: "email", guardianemail: "email", parentsemail: "email", emailaddress: "email", parentemailaddress: "email",
 };
 
-/** Kenyan mobile numbers: 0712345678, 712345678 (Excel drops the 0), +254712345678 or 254712345678. Returns 2547XXXXXXXX. */
 export function parsePhone(raw: string): { value: string | null; error?: string } {
   const s = raw.trim();
   if (!s) return { value: null };
@@ -38,7 +37,6 @@ export function parseGender(raw: string): { value: "MALE" | "FEMALE" | null; err
   return { value: null, error: `Gender "${raw.trim()}" isn't Male or Female.` };
 }
 
-/** Accepts 2010-03-14 or 14/03/2010 (day first; also - or . as separators). */
 export function parseDob(raw: string, now = new Date()): { value: Date | null; error?: string } {
   const s = raw.trim();
   if (!s) return { value: null };
@@ -57,7 +55,6 @@ export function parseDob(raw: string, now = new Date()): { value: Date | null; e
   return { value: date };
 }
 
-/** Matches "Form 2 North", or a class name or stream that is unique on its own. */
 export function matchClass(raw: string, classes: ClassOpt[]): { id?: number; error?: string } {
   const want = norm(raw);
   if (!want) return { error: "Stream is empty." };
@@ -99,7 +96,6 @@ export function readStudentRows(table: string[][], classes: ClassOpt[]): { rows:
 
   for (let i = 1; i < table.length; i++) {
     const r = table[i];
-    // Rows holding only a pre-filled id number (as in a sheet with ids down column A) count as blank.
     if (r.every((x, j) => j === col.id || x.trim() === "")) continue;
     const rowNumber = i + 1; // matches the row number in Excel
     const problems: string[] = [];

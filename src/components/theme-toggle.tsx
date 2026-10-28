@@ -4,12 +4,9 @@ import "@/styles/dark.css";
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
-/** A round light/dark switch pinned to the bottom-right of every page. Remembers the choice in the browser. */
 export function ThemeToggle() {
   const [dark, setDark] = useState(false);
 
-  // Follow the saved choice, or the device's setting the first time. (ThemeScript does this earlier in the
-  // layout so there's no flash; this keeps the button correct even without it.)
   useEffect(() => {
     try {
       const saved = localStorage.getItem("theme");

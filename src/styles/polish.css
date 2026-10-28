@@ -1,4 +1,3 @@
-/* Digits are all the same width, so numbers line up in tables and don't shift as values change. */
 body {
   font-variant-numeric: tabular-nums;
 }

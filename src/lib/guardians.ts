@@ -3,7 +3,6 @@ import { normalisePhone, PHONE_REGEX } from "./mpesa";
 
 const local = (p: string) => "0" + p.slice(3);
 
-/** Resolves parent logins from emails or phone numbers. Returns an error message if any are unknown. */
 export async function resolveGuardians(entries: unknown) {
   if (entries === undefined) return { ids: undefined as { id: number }[] | undefined };
   if (!Array.isArray(entries)) return { error: "Parent logins must be a list." };

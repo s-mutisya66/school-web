@@ -2,13 +2,11 @@ import { Check, Loader2, X } from "lucide-react";
 
 export type StkStage = "sending" | "waiting" | "confirmed" | "failed";
 
-/** +254 712 ••• 678: enough to recognise the number, not enough to expose it. */
 export function maskPhone(input: string) {
   const d = input.replace(/\D/g, "").replace(/^254/, "").replace(/^0/, "");
   return d.length >= 9 ? `+254 ${d.slice(0, 3)} ••• ${d.slice(6, 9)}` : "your phone";
 }
 
-/** The steps of an M-Pesa STK Push, shown live while the (simulated) Daraja callback arrives. */
 export function StkProgress({ stage, phone, failure }: { stage: StkStage; phone: string; failure?: string }) {
   const masked = maskPhone(phone);
   const at = stage === "sending" ? 0 : stage === "waiting" || stage === "failed" ? 1 : 2;

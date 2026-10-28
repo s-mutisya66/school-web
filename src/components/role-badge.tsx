@@ -7,7 +7,6 @@ type Role = "ADMIN" | "TEACHER" | "PARENT";
 const FULL: Record<Role, string> = { ADMIN: "Admin (Full access)", TEACHER: "Teacher (Own classes only)", PARENT: "Parent (Own children only)" };
 const SHORT: Record<Role, string> = { ADMIN: "Admin", TEACHER: "Teacher", PARENT: "Parent" };
 
-/** A small pill in the corner that says who you're signed in as, with a quick way to try another role. */
 export function RoleBadge({ role }: { role: Role }) {
   const router = useRouter();
 

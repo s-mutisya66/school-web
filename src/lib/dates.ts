@@ -1,4 +1,3 @@
-/** Today's date in Kenya (UTC+3) as YYYY-MM-DD. */
 export const todayNairobi = () => new Date(Date.now() + 3 * 3600 * 1000).toISOString().slice(0, 10);
 
 /** Parses YYYY-MM-DD into a UTC-midnight Date, or null if it isn't a real date. */

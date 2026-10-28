@@ -4,7 +4,6 @@ import type { StkCallbackPayload } from "./mpesa";
 
 type Tx = Prisma.TransactionClient;
 
-/** One invoice per active student for the term. Safe to re-run (skips existing). */
 export async function generateInvoices(termId: number): Promise<number> {
   const term = await db.term.findUniqueOrThrow({ where: { id: termId } });
 
@@ -41,7 +40,6 @@ export async function totalBalance(studentId: number, client: Tx | typeof db = d
   return (agg._sum.amountDue ?? 0) - (agg._sum.amountPaid ?? 0);
 }
 
-/** Applies a paid amount to the oldest outstanding invoices first. */
 async function allocate(tx: Tx, studentId: number, amount: number) {
   let remaining = amount;
 
@@ -62,10 +60,6 @@ async function allocate(tx: Tx, studentId: number, amount: number) {
   }
 }
 
-/**
- * Handles an M-Pesa callback payload. Idempotent: the PENDING -> final status
- * flip is a single conditional UPDATE, so a replayed callback credits nothing.
- */
 export async function processCallback(payload: StkCallbackPayload) {
   const cb = payload?.Body?.stkCallback;
   if (!cb) return null;

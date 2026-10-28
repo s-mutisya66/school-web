@@ -1,4 +1,3 @@
-// Shared look for the signed-in pages: white cards, tinted tiles, one heading style.
 export const card = "rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5";
 export const heading = "font-[family-name:var(--font-display)] text-lg font-bold";
 export const TONES = { sand: "bg-[#FBE9D9]", sky: "bg-[#DDEBF8]", mint: "bg-[#DCF2E4]", rose: "bg-[#F9E0E0]", amber: "bg-[#FDE7D3]" } as const;

@@ -69,7 +69,6 @@ export async function buildPerformance(termId: number, wantedExamId?: number) {
       };
     });
 
-    // The full picture for the selected exam.
     const group = examStudents.get(selected.id)!.filter(inForm);
     let detail = null;
     if (group.length) {
@@ -83,8 +82,7 @@ export async function buildPerformance(termId: number, wantedExamId?: number) {
       const rows: SheetRow[] = rankRows(
         group.map((s) => ({
           id: s.id, name: s.name, gender: s.gender, admissionNo: s.admissionNo, className: classLabel(classById.get(s.classId)!),
-          scores: columnIds.map((id) => s.marks.get(id) ?? null), // marks as entered, out of the exam total
-          // Fewer subjects marked than classmates, so the average isn't like for like.
+          scores: columnIds.map((id) => s.marks.get(id) ?? null),
           incomplete: s.subjectsCounted < maxSubjects, total: s.raw,
           mean: s.mean, grade: gradeFor(s.mean),
         })),

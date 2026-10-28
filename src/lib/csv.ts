@@ -1,4 +1,3 @@
-/** Minimal CSV reader: handles a BOM, quoted cells, doubled quotes, CRLF, and comma or semicolon delimiters. */
 export function parseCsv(input: string): string[][] {
   const text = input.charCodeAt(0) === 0xfeff ? input.slice(1) : input;
   const first = text.split(/\r?\n/, 1)[0] ?? "";
@@ -26,7 +25,6 @@ export function parseCsv(input: string): string[][] {
   return rows;
 }
 
-/** Quotes a cell when needed, and defuses spreadsheet formulas (a leading = + - @). */
 export function csvCell(v: string | number | null | undefined): string {
   let s = v === null || v === undefined ? "" : String(v);
   if (typeof v === "string" && /^[=+\-@]/.test(s)) s = "'" + s;

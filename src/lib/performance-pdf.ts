@@ -10,7 +10,6 @@ type Options = {
   gradeScale: string;
 };
 
-/** A landscape A4 performance sheet, plus a second table of the best students in each subject. */
 export function buildSheetPdf({ title, subtitle, columns, rows, gradeScale }: Options): jsPDF {
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
@@ -22,7 +21,7 @@ export function buildSheetPdf({ title, subtitle, columns, rows, gradeScale }: Op
   doc.text(subtitle, 14, 20);
 
   const small = columns.length > 10;
-  const fixed = 4; // position, name, admission number, class
+  const fixed = 4;
   const numeric = Object.fromEntries(Array.from({ length: columns.length + 2 }, (_, i) => [fixed + i, { halign: "center" as const }]));
 
   autoTable(doc, {

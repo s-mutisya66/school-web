@@ -10,7 +10,6 @@ type Result =
   | { ok: true; created: number; updated: number; newLogins: number; linkedLogins: number; preview: Preview[] };
 type Credential = { name: string; login: string; password: string; children: string };
 
-/** [34,35,36,40] becomes "Rows 34–36, 40". */
 function fmtRows(rows: number[]) {
   const parts: string[] = [];
   for (let i = 0; i < rows.length; ) {

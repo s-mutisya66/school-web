@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { forbidden, getSession, unauthorized } from "@/lib/auth";
 import { buildAdminDashboard, buildTeacherDashboard } from "@/lib/dashboard";
 
-/** The numbers behind the home page. Admins get the school overview, teachers get their own classes. */
 export async function GET() {
   const session = await getSession();
   if (!session) return unauthorized();

@@ -1,4 +1,3 @@
-/** Pure helpers shared by the performance page and the PDF. */
 export type SheetRow = {
   id: number; name: string; gender: string; admissionNo: string; className: string;
   scores: (number | null)[]; incomplete: boolean; total: number; mean: number; grade: string; position: number;
@@ -7,7 +6,6 @@ export type SheetRow = {
 export const nameWithSex = (r: { name: string; gender: string }) => (r.gender ? `${r.name} (${r.gender})` : r.name);
 export const fmt = (n: number | null) => (n === null ? "–" : Number.isInteger(n) ? String(n) : n.toFixed(1));
 
-/** Sorts high to low and numbers the rows; equal averages share a position. */
 export function rankRows<T extends { mean: number }>(rows: T[]): (T & { position: number })[] {
   let pos = 0, prev = Infinity;
   return [...rows].sort((a, b) => b.mean - a.mean).map((r, i) => {
@@ -16,7 +14,6 @@ export function rankRows<T extends { mean: number }>(rows: T[]): (T & { position
   });
 }
 
-/** For each subject, the students in the top `top` positions (ties share a position, up to 6 names). */
 export function bestBySubject(rows: SheetRow[], columns: { name: string }[], top = 3) {
   return columns.map((c, i) => {
     const scored = rows.filter((r) => r.scores[i] !== null).sort((a, b) => b.scores[i]! - a.scores[i]!);

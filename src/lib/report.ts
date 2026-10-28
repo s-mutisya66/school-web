@@ -5,10 +5,6 @@ import { sortExams } from "./exams";
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
-/**
- * A student's report for one term. Each exam stands on its own: its own scores, average, grade, position in
- * class and overall position in the form (all streams together). Exams are never averaged together.
- */
 export async function buildReport(studentId: number, termId: number) {
   const student = await db.student.findUniqueOrThrow({ where: { id: studentId }, include: { schoolClass: true } });
   const exams = sortExams(await db.exam.findMany({ where: { termId } }));
@@ -16,7 +12,6 @@ export async function buildReport(studentId: number, termId: number) {
   const term = await db.term.findUnique({ where: { id: termId } });
   const nextTerm = term ? await db.term.findFirst({ where: { startsOn: { gt: term.startsOn } }, orderBy: { startsOn: "asc" } }) : null;
 
-  // Marks for the whole form, so positions can be worked out against every stream.
   const marks = await db.mark.findMany({
     where: { exam: { termId }, student: { schoolClass: { name: form }, OR: [{ status: "active" }, { id: studentId }] } },
     select: {
@@ -29,8 +24,8 @@ export async function buildReport(studentId: number, termId: number) {
 
   const subjectNames = new Map<number, string>();
   const classOf = new Map<number, number>();
-  const pct = new Map<number, Map<number, Map<number, number>>>(); // exam -> student -> subject -> %
-  const mine = new Map<string, number>(); // `${exam}:${subject}` -> raw score
+  const pct = new Map<number, Map<number, Map<number, number>>>();
+  const mine = new Map<string, number>();
   for (const m of marks) {
     subjectNames.set(m.subject.id, m.subject.name);
     classOf.set(m.student.id, m.student.schoolClassId);
@@ -49,7 +44,7 @@ export async function buildReport(studentId: number, termId: number) {
       return { id: e.id, name: e.name, outOf: e.outOf, total: null, totalOutOf: 0, mean: null, grade: null, classPosition: null, classSize: 0, formPosition: null, formSize: 0, classMean: null, formMean: null };
     }
     const inClass = means.filter((x) => x.classId === student.schoolClassId);
-    const position = (list: typeof means) => 1 + list.filter((x) => x.mean > me.mean).length; // ties share a position
+    const position = (list: typeof means) => 1 + list.filter((x) => x.mean > me.mean).length;
     const myMarks = [...mine].filter(([k]) => k.startsWith(`${e.id}:`)).map(([, v]) => v);
     return {
       id: e.id, name: e.name, outOf: e.outOf,

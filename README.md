@@ -51,6 +51,6 @@ Migrations run automatically on each Vercel deploy (`prisma migrate deploy`).
 ## Known limits and next steps
 
 - Login has no rate limiting yet.
-- Teachers aren't assigned to classes, so any teacher can mark any class.
+- Teachers are assigned to classes, so teacher can mark only the classes that he/she teaches.
 - Exams, grades and report cards are planned next.
 - Overpayments (credit balances) aren't handled.

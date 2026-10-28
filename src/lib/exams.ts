@@ -1,4 +1,3 @@
-/** Puts a term's exams in the order they're sat: opener, mid-term, mock, end-term, then anything else. */
 function rank(name: string, id: number) {
   const n = name.toLowerCase();
   if (/open/.test(n)) return 1;

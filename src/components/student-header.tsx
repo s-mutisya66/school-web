@@ -13,7 +13,6 @@ const TABS = [
   { key: "report", label: "Report card", path: "report" },
 ] as const;
 
-/** Who the page is about, a way back, and tabs between a student's fees, attendance and report card. */
 export function StudentHeader({ id, active, compact }: { id: string; active: (typeof TABS)[number]["key"]; compact?: boolean }) {
   const router = useRouter();
   const [s, setS] = useState<Summary | null>(null);
@@ -26,7 +25,7 @@ export function StudentHeader({ id, active, compact }: { id: string; active: (ty
   }, [id, router]);
 
   const back = s?.viewer === "ADMIN" ? { href: "/admin/students", label: "Students" } : s?.viewer === "TEACHER" ? { href: "/admin", label: "Dashboard" } : { href: "/parent", label: "My children" };
-  // Teachers see report cards only; fees and attendance summaries are for parents and admins.
+  
   const tabs = TABS.filter((t) => s?.viewer !== "TEACHER" || t.key === "report");
 
   return (
