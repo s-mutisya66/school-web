@@ -13,7 +13,6 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
-// ... metadata & RootLayout structure ...
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jakarta.variable}`}>
